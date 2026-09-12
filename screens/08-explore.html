@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Explore</title>
+  <link rel="stylesheet" href="../design-system/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    .head { padding: 4px var(--gutter) 0; display: flex; align-items: center; justify-content: space-between; }
+    .head .title-1 { margin: 0; }
+    .heat-btn {
+      height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text-1); font-size: 13px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-family: inherit;
+    }
+    .heat-btn svg { color: var(--text-2); }
+
+    /* Tabs Segments / Riders */
+    .tabs { display: flex; gap: 24px; padding: 12px var(--gutter) 0; border-bottom: 1px solid var(--border); margin: 0 var(--gutter); padding-left: 0; padding-right: 0; }
+    .tabs span { padding-bottom: 10px; font-size: 15px; font-weight: 500; color: var(--text-3); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tabs span.on { color: var(--text-1); border-bottom-color: var(--text-1); }
+
+    .chips { display: flex; gap: 8px; padding: 12px var(--gutter) 0; overflow-x: auto; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+
+    /* Feed */
+    .feed { padding: 16px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+    .post img.ph-img { width: 100%; aspect-ratio: 3 / 2; }
+    .post .ph .title-2 { position: absolute; left: 16px; right: 16px; bottom: 12px; margin: 0; color: var(--text-1); }
+    .post .ph .sub { position: absolute; left: 16px; right: 16px; bottom: 36px; font-size: 12px; color: var(--text-2); }
+    .post .meta { padding: 12px 16px 14px; }
+    .post .who { display: flex; align-items: center; gap: 8px; }
+    .post .who .avatar { width: 24px; height: 24px; }
+    .post .who .caption { color: var(--text-2); }
+    .post .who .caption b { font-weight: 500; color: var(--text-1); }
+    .post .stats { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .post .stats .caption { color: var(--text-2); display: flex; align-items: center; gap: 4px; }
+    .post .stats .caption svg { color: var(--text-1); }
+    .post .btn-tertiary { font-size: 14px; }
+
+    .section { padding: 24px var(--gutter) 0; }
+    .section .label { margin: 0; }
+    .row { display: flex; gap: 12px; padding: 12px var(--gutter) 0; overflow-x: auto; scrollbar-width: none; }
+    .row::-webkit-scrollbar { display: none; }
+    .mini { flex: none; width: 160px; height: 200px; display: block; }
+    .mini img { width: 100%; height: 100%; }
+    .mini .txt { position: absolute; left: 12px; right: 12px; bottom: 12px; }
+    .mini .name { font-size: 15px; font-weight: 600; margin: 0 0 3px; color: var(--text-1); }
+    .mini .caption { font-size: 12px; }
+
+    /* Heat map : couvre la zone de contenu, sous le header, au-dessus de la tab bar */
+    #heatmap { position: absolute; left: 0; right: 0; top: 108px; bottom: 84px; z-index: 5; background: var(--bg); display: none; }
+    .screen.heat #heatmap { display: block; }
+    .screen.heat .scroll { visibility: hidden; }
+    .leaflet-container { background: var(--bg); font-family: inherit; }
+    .leaflet-control-attribution { display: none; }
+    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(0.12) brightness(0.62) contrast(1.15); }
+    .heat-legend {
+      position: absolute; right: var(--gutter); top: 12px; z-index: 500;
+      padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
+      font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 8px;
+    }
+    .heat-legend i { display: block; width: 28px; height: 3px; border-radius: 2px; background: linear-gradient(to right, rgba(77,143,230,.25), var(--accent-bright)); }
+  </style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <div id="sb"></div>
+
+  <header class="head">
+    <h1 class="title-1">Explore</h1>
+    <button class="heat-btn" id="toggle" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15"/></svg>
+      <span id="toggle-lbl">Heat map</span>
+    </button>
+  </header>
+
+  <div id="heatmap"><div class="heat-legend"><i></i>Community rides · last 12 months</div></div>
+
+  <div class="scroll">
+    <div class="tabs"><span class="on">Segments</span><span>Riders</span></div>
+    <div class="chips" id="chips"></div>
+    <div class="feed" id="feed"></div>
+    <div class="section"><p class="label">Dream rides</p></div>
+    <div class="row" id="dream"></div>
+  </div>
+
+  <div id="tb"></div>
+  <div id="hi"></div>
+</div>
+
+<script src="../design-system/leaflet/leaflet.js"></script>
+<script src="data.js"></script>
+<script>
+  document.getElementById("sb").innerHTML = statusBar();
+  document.getElementById("tb").innerHTML = tabBar("explore");
+  document.getElementById("hi").innerHTML = homeIndicator();
+
+  const chips = ["Near me", "Top rated", "Twisties", "Alpine", "Iconic", "This weekend"];
+  document.getElementById("chips").innerHTML = chips.map((c, i) => `<span class="chip${i === 0 ? " active" : ""}">${c}</span>`).join("");
+
+  document.getElementById("feed").innerHTML = RIDE.segments.map(s => `
+    <article class="card-photo post">
+      <a class="ph" href="09-segment.html">
+        <img class="ph-img" src="../assets/routes/${s.photo}.png" alt="">
+        <span class="overlay"></span>
+        ${s.sub ? `<span class="sub">${s.sub}</span>` : ""}
+        <p class="title-2">${s.name}</p>
+      </a>
+      <div class="meta">
+        <div class="who">
+          <img class="avatar" src="../assets/avatars/${s.avatar}.png" alt="">
+          <span class="caption"><b>${s.author}</b> · ${s.rides} rides</span>
+        </div>
+        <div class="stats">
+          <span class="caption">${s.km} · curv ${s.curv} · ${star(11)} ${s.rating}</span>
+          <a class="btn-tertiary" href="04-route.html">Add to route</a>
+        </div>
+      </div>
+    </article>`).join("");
+
+  document.getElementById("dream").innerHTML = RIDE.dreamRides.map(d => `
+    <a class="card-photo mini" href="09-segment.html">
+      <span class="ph"><img src="../assets/routes/${d.photo}.png" alt="" style="height:200px"><span class="overlay"></span></span>
+      <span class="txt"><p class="name">${d.name}</p><span class="caption">${d.sub}</span></span>
+    </a>`).join("");
+
+  /* --------------------------------------------------------- Heat map */
+  let map = null;
+  const screen = document.getElementById("screen");
+  function showHeat(on) {
+    screen.classList.toggle("heat", on);
+    document.getElementById("toggle-lbl").textContent = on ? "List" : "Heat map";
+    if (!on) return;
+    if (!map) {
+      map = L.map("heatmap", { zoomControl: false, attributionControl: false, scrollWheelZoom: false, zoomSnap: 0.25 });
+      L.tileLayer("../design-system/tiles/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      const max = Math.max(...RIDE.heat.map(h => h.rides));
+      const col = getComputedStyle(document.documentElement).getPropertyValue("--accent-bright").trim();
+      // Opacité et épaisseur proportionnelles aux rides ; halo large + cœur fin = rendu "heat".
+      RIDE.heat.forEach(h => {
+        const w = h.rides / max;
+        L.polyline(h.path, { color: col, weight: 10 + 10 * w, opacity: 0.08 + 0.22 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
+      });
+      RIDE.heat.forEach(h => {
+        const w = h.rides / max;
+        L.polyline(h.path, { color: col, weight: 2 + 2.5 * w, opacity: 0.35 + 0.65 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
+      });
+      map.fitBounds(L.latLngBounds(RIDE.heat.flatMap(h => h.path)), { paddingTopLeft: [16, 56], paddingBottomRight: [16, 16] });
+    }
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+  document.getElementById("toggle").addEventListener("click", () => showHeat(!screen.classList.contains("heat")));
+  if (location.hash === "#heat") showHeat(true);
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Home</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    .head { padding: 4px var(--gutter) 0; }
+    .head .title-1 { margin: 0; }
+    .weather { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .weather svg { color: var(--text-2); flex: none; }
+    .bike {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
+      height: 32px; padding: 0 12px 0 10px; border-radius: 999px;
+      background: var(--surface-1); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 500; color: var(--text-1);
+    }
+    .bike .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); }
+    .bike .sep { color: var(--text-3); }
+
+    .stack { padding: 16px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+    .hero { height: 168px; display: block; }
+    .hero img { width: 100%; height: 100%; }
+    .hero .txt { position: absolute; left: 16px; right: 16px; bottom: 14px; }
+    .hero .title-2 { margin: 0 0 2px; color: var(--text-1); }
+    .hero .caption { color: var(--text-2); }
+
+    .section { padding: 16px var(--gutter) 0; display: flex; align-items: baseline; justify-content: space-between; }
+    .section .label { margin: 0; }
+    .row { display: flex; gap: 12px; padding: 12px var(--gutter) 0; overflow-x: auto; scrollbar-width: none; }
+    .row::-webkit-scrollbar { display: none; }
+    .mini { flex: none; width: 160px; height: 200px; display: block; }
+    .mini img { width: 100%; height: 100%; }
+    .mini .txt { position: absolute; left: 12px; right: 12px; bottom: 12px; }
+    .mini .name { font-size: 15px; font-weight: 600; margin: 0 0 3px; color: var(--text-1); }
+    .mini .meta { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-2); }
+    .mini .meta svg { color: var(--text-1); }
+  </style>
+</head>
+<body>
+<div class="screen">
+  <div id="sb"></div>
+
+  <div class="scroll">
+    <header class="head">
+      <h1 class="title-1">Ready to ride, Tim?</h1>
+      <div class="weather caption">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <span id="wx"></span>
+      </div>
+      <div class="bike" id="bike"></div>
+    </header>
+
+    <section class="stack">
+      <a class="card-photo hero" href="03-destination.html">
+        <span class="ph"><img src="../assets/routes/bavarian-morning.png" alt=""><span class="overlay"></span></span>
+        <span class="txt"><p class="title-2">Go somewhere</p><span class="caption">A day ride from Munich, your way</span></span>
+      </a>
+      <a class="card-photo hero" href="06-voice.html">
+        <span class="ph"><img src="../assets/routes/rossfeld.png" alt="" style="object-position: 50% 45%"><span class="overlay"></span></span>
+        <span class="txt"><p class="title-2">Plan a trip</p><span class="caption">Multi-day loops with your companion</span></span>
+      </a>
+    </section>
+
+    <div class="section">
+      <p class="label">Near you this weekend</p>
+      <a class="btn-tertiary" href="08-explore.html" style="font-size:13px">See all</a>
+    </div>
+    <div class="row" id="near"></div>
+  </div>
+
+  <div id="tb"></div>
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const w = RIDE.weather, u = RIDE.user;
+  document.getElementById("sb").innerHTML = statusBar();
+  document.getElementById("tb").innerHTML = tabBar("ride");
+  document.getElementById("hi").innerHTML = homeIndicator();
+  document.getElementById("wx").textContent = `${w.temp} ${w.cond} · ${w.wind} · ${w.note}`;
+  document.getElementById("bike").innerHTML =
+    `<span class="dot"></span>${u.bike}<span class="sep">·</span>${u.fuel} %<span class="sep">·</span>${u.range} km`;
+
+  const near = RIDE.segments.slice(0, 2);   // Kesselberg, Sudelfeld
+  document.getElementById("near").innerHTML = near.map(s => `
+    <a class="card-photo mini" href="09-segment.html">
+      <span class="ph"><img src="../assets/routes/${s.photo}.png" alt="" style="height:200px"><span class="overlay"></span></span>
+      <span class="txt">
+        <p class="name">${s.name}</p>
+        <span class="meta">${star(11)} ${s.rating} · ${s.km} · curv ${s.curv}</span>
+      </span>
+    </a>`).join("");
+</script>
+</body>
+</html>
