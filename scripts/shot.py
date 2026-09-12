@@ -7,6 +7,7 @@
 """
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -16,6 +17,8 @@ OUT = ROOT / "out"
 
 WIDTH, HEIGHT = 390, 844
 SCALE = 2
+# Tuiles de carte servies hors-ligne (voir scripts/cache_tiles.py) : une tuile absente = PNG a trous.
+TILE_PAT = re.compile(r"/design-system/tiles/[a-z0-9-]+/\d+/\d+/\d+\.png")
 
 
 def chromium_path():
@@ -64,12 +67,19 @@ def shoot(page, name: str, full_page: bool) -> Path:
     if not src.exists():
         sys.exit(f"erreur: {src} introuvable")
     dst = OUT / (f"{name}-{state}.png" if state else f"{name}.png")
+    missing = []
+    on_failed = lambda r: TILE_PAT.search(r.url) and missing.append(r.url)
+    page.on("requestfailed", on_failed)
     page.goto(src.as_uri() + (f"#{state}" if state else ""), wait_until="networkidle")
     # Tailwind s'injecte apres le parse: laisser un tick de plus.
     page.wait_for_timeout(400)
     assert_styled(page, name)
     page.screenshot(path=str(dst), full_page=full_page)
+    page.remove_listener("requestfailed", on_failed)
     print(f"{src.relative_to(ROOT)}{'#' + state if state else ''} -> {dst.relative_to(ROOT)}")
+    if missing:
+        print(f"  ATTENTION: {len(missing)} tuile(s) de carte manquante(s), le PNG a des trous."
+              f" Lance : python scripts/cache_tiles.py \"{name}{'#' + state if state else ''}\"")
     return dst
 
 

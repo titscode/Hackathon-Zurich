@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="../design-system/tokens.css">
   <style>
     /* Carte réelle sur 58 % de la hauteur (SCREENS.md 04). */
-    #map { position: absolute; inset: 0 0 auto 0; height: 58%; background: var(--bg); z-index: 0; }
-    .leaflet-container { background: var(--bg); font-family: inherit; }
-    .leaflet-control-attribution { display: none; }   /* masquée dans le mockup */
-    /* Tuiles OSM assombries : CartoDB Dark Matter exige une clé API depuis 2025. */
-    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(0.12) brightness(0.62) contrast(1.15); }
+    .map-slot { position: absolute; inset: 0 0 auto 0; height: 58%; background: var(--bg); z-index: 0; }
+    /* Voile sous la status bar : les labels de la carte ne passent pas sous l'heure (overlay sur image, §3) */
+    .map-scrim { position: absolute; left: 0; right: 0; top: 0; height: 64px; z-index: 5; pointer-events: none;
+                 background: linear-gradient(to bottom, rgba(10,11,13,.8), rgba(10,11,13,0)); }
+    /* Fond de carte et filtre : tokens.css §5 (.map-osm / .map-dark), posés par rideTileLayer(). */
 
     .statusbar { position: absolute; top: 0; left: 0; right: 0; }
 
@@ -62,21 +62,16 @@
     .g .row .caption { color: var(--text-2); }
     .g .row .body-strong { font-size: 14px; }
 
-    /* Card segment */
-    .seg { margin-top: 10px; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; }
-    .seg .avatar { width: 32px; height: 32px; }
-    .seg .t { flex: 1; min-width: 0; }
-    .seg .name { font-size: 14px; font-weight: 500; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .seg .meta { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
-    .seg .meta svg { color: var(--text-1); }
-    .seg .count { font-size: 12px; color: var(--text-3); flex: none; }
+    /* Card segment : style partagé .seg (tokens.css) */
+    .seg { margin-top: 10px; }
 
     .cta { margin-top: 10px; padding-bottom: 22px; }
   </style>
 </head>
 <body>
 <div class="screen">
-  <div id="map"></div>
+  <div class="map-slot"><div id="map"></div></div>
+  <div class="map-scrim"></div>
   <div id="sb"></div>
 
   <a class="dest body" href="03-destination.html">
@@ -115,25 +110,30 @@
 </div>
 
 <script src="../design-system/leaflet/leaflet.js"></script>
+<script src="../design-system/tiles/source.js"></script>
 <script src="data.js"></script>
 <script>
   document.getElementById("sb").innerHTML = statusBar();
   document.getElementById("hi").innerHTML = homeIndicator();
 
   /* ---------------------------------------------------------------- Carte */
-  const map = L.map("map", { zoomControl: false, attributionControl: false, dragging: true, scrollWheelZoom: false, zoomSnap: 0.25 });
-  L.tileLayer("../design-system/tiles/{z}/{x}/{y}.png", { maxZoom: 19, tileSize: 256 }).addTo(map);
+  const map = L.map("map", { zoomControl: false, attributionControl: false, dragging: true, scrollWheelZoom: false, zoomSnap: 1 });
+  rideTileLayer(map);
 
   const css = getComputedStyle(document.documentElement);
   const C = k => css.getPropertyValue(k).trim();
+  /* DESIGN.md §1 route-selected : blanc 4 px, halo rgba(244,245,247,.25) 10 px, plus une retombée
+     18 px à 8 % pour que le halo se lise comme un halo et non comme un contour. route-alt : 2.5 px à 60 %. */
+  const round = { lineCap: "round", lineJoin: "round" };
   const lines = RIDE.routes.map(r => ({
-    halo: L.polyline(r.path, { color: C("--route-selected"), weight: 10, opacity: 0.25, lineCap: "round", lineJoin: "round" }).addTo(map),
-    line: L.polyline(r.path, { color: C("--route-alt"), weight: 2.5, opacity: 1, lineCap: "round", lineJoin: "round" }).addTo(map),
+    glow: L.polyline(r.path, { color: C("--route-selected"), vw: 18, opacity: 0, interactive: false, ...round }).addTo(map),
+    halo: L.polyline(r.path, { color: C("--route-selected"), vw: 10, opacity: 0, interactive: false, ...round }).addTo(map),
+    line: L.polyline(r.path, { color: C("--route-alt"), vw: 2.5, opacity: 0.6, ...round }).addTo(map),
   }));
-  L.marker(RIDE.routes[0].path[0], { icon: L.divIcon({ className: "", html: '<div class="me"><i></i></div>', iconSize: [28, 28], iconAnchor: [14, 14] }), interactive: false }).addTo(map);
+  L.marker(RIDE.routes[0].path[0], { icon: L.divIcon({ className: "", html: '<div class="me keep-size"><i></i></div>', iconSize: [28, 28], iconAnchor: [14, 14] }), interactive: false }).addTo(map);
 
   const all = RIDE.routes.flatMap(r => r.path);
-  map.fitBounds(L.latLngBounds(all), { paddingTopLeft: [28, 118], paddingBottomRight: [28, 40] });
+  const S = rideFitBounds(map, L.latLngBounds(all), { paddingTopLeft: [28, 118], paddingBottomRight: [28, 40] });
 
   /* ------------------------------------------------- Slider : 3 états */
   const seg = RIDE.segments.find(s => s.name === "Kochelsee Uferstraße");
@@ -169,10 +169,12 @@
     }
     lines.forEach((l, j) => {
       const on = j === i;
+      l.glow.setStyle({ opacity: on ? 0.08 : 0 });
       l.halo.setStyle({ opacity: on ? 0.25 : 0 });
-      l.line.setStyle({ color: on ? C("--route-selected") : C("--route-alt"), weight: on ? 4 : 2.5 });
-      if (on) l.line.bringToFront();
+      l.line.setStyle({ color: on ? C("--route-selected") : C("--route-alt"), weight: (on ? 4 : 2.5) / S, opacity: on ? 1 : 0.6 });
     });
+    /* Ordre des couches : alternatives < halo < tracé sélectionné */
+    lines[i].glow.bringToFront(); lines[i].halo.bringToFront(); lines[i].line.bringToFront();
     knob.style.left = stopsLeft[i];
     lbls.forEach((el, j) => el.classList.toggle("on", j === i));
   }

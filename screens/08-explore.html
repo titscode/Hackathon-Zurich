@@ -53,9 +53,6 @@
     #heatmap { position: absolute; left: 0; right: 0; top: 108px; bottom: 84px; z-index: 5; background: var(--bg); display: none; }
     .screen.heat #heatmap { display: block; }
     .screen.heat .scroll { visibility: hidden; }
-    .leaflet-container { background: var(--bg); font-family: inherit; }
-    .leaflet-control-attribution { display: none; }
-    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(0.12) brightness(0.62) contrast(1.15); }
     .heat-legend {
       position: absolute; right: var(--gutter); top: 12px; z-index: 500;
       padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
@@ -76,7 +73,7 @@
     </button>
   </header>
 
-  <div id="heatmap"><div class="heat-legend"><i></i>Community rides · last 12 months</div></div>
+  <div id="heatmap" class="map-slot"><div id="heatmap-map"></div><div class="heat-legend"><i></i>Community rides · last 12 months</div></div>
 
   <div class="scroll">
     <div class="tabs"><span class="on">Segments</span><span>Riders</span></div>
@@ -91,6 +88,7 @@
 </div>
 
 <script src="../design-system/leaflet/leaflet.js"></script>
+<script src="../design-system/tiles/source.js"></script>
 <script src="data.js"></script>
 <script>
   document.getElementById("sb").innerHTML = statusBar();
@@ -134,22 +132,21 @@
     document.getElementById("toggle-lbl").textContent = on ? "List" : "Heat map";
     if (!on) return;
     if (!map) {
-      map = L.map("heatmap", { zoomControl: false, attributionControl: false, scrollWheelZoom: false, zoomSnap: 0.25 });
-      L.tileLayer("../design-system/tiles/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      map = L.map("heatmap-map", { zoomControl: false, attributionControl: false, scrollWheelZoom: false, zoomSnap: 1 });
+      rideTileLayer(map);
       const max = Math.max(...RIDE.heat.map(h => h.rides));
       const col = getComputedStyle(document.documentElement).getPropertyValue("--accent-bright").trim();
       // Opacité et épaisseur proportionnelles aux rides ; halo large + cœur fin = rendu "heat".
       RIDE.heat.forEach(h => {
         const w = h.rides / max;
-        L.polyline(h.path, { color: col, weight: 10 + 10 * w, opacity: 0.08 + 0.22 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
+        L.polyline(h.path, { color: col, vw: 10 + 10 * w, opacity: 0.08 + 0.22 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
       });
       RIDE.heat.forEach(h => {
         const w = h.rides / max;
-        L.polyline(h.path, { color: col, weight: 2 + 2.5 * w, opacity: 0.35 + 0.65 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
+        L.polyline(h.path, { color: col, vw: 2 + 2.5 * w, opacity: 0.35 + 0.65 * w, lineCap: "round", lineJoin: "round" }).addTo(map);
       });
-      map.fitBounds(L.latLngBounds(RIDE.heat.flatMap(h => h.path)), { paddingTopLeft: [16, 56], paddingBottomRight: [16, 16] });
+      rideFitBounds(map, L.latLngBounds(RIDE.heat.flatMap(h => h.path)), { paddingTopLeft: [16, 56], paddingBottomRight: [16, 16] });
     }
-    setTimeout(() => map.invalidateSize(), 0);
   }
   document.getElementById("toggle").addEventListener("click", () => showHeat(!screen.classList.contains("heat")));
   if (location.hash === "#heat") showHeat(true);
