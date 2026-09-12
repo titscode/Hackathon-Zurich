@@ -37,37 +37,39 @@ def chromium_path():
 
 
 def assert_styled(page, name: str) -> None:
-    """Echoue si Tailwind n'a pas ete applique.
+    """Echoue si aucune feuille de style n'a ete appliquee.
 
-    Sans ce garde-fou, un script non charge produit un PNG non style sans
-    aucune erreur, et on ne s'en apercoit qu'a l'oeil.
+    Sans ce garde-fou, un CSS non charge (tokens.css absent, Tailwind bloque)
+    produit un PNG non style sans aucune erreur, et on ne s'en apercoit qu'a l'oeil.
     """
     ok = page.evaluate(
         """() => {
-            const el = document.querySelector('[class*="w-["], [class*="flex"], [class*="px-"]');
-            if (!el) return true;
-            const cs = getComputedStyle(el);
-            return cs.display === 'flex' || cs.paddingLeft !== '0px' || cs.width !== 'auto';
+            const bg = getComputedStyle(document.body).backgroundColor;
+            const styled = bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'rgb(255, 255, 255)';
+            const sheets = Array.from(document.styleSheets).some(s => { try { return s.cssRules.length > 0 } catch (e) { return true } });
+            return styled && sheets;
         }"""
     )
     if not ok:
         sys.exit(
-            f"erreur: les styles Tailwind ne sont pas appliques sur {name}.\n"
-            "  Verifie <script src=\"../design-system/tailwind.js\"></script> dans le HTML."
+            f"erreur: aucun style applique sur {name}.\n"
+            "  Verifie le <link> vers ../design-system/tokens.css (ou le <script> Tailwind) dans le HTML."
         )
 
 
 def shoot(page, name: str, full_page: bool) -> Path:
+    # "08-explore#heat" capture l'etat #heat de l'ecran dans out/08-explore-heat.png
+    name, _, state = name.partition("#")
     src = SCREENS / f"{name}.html"
     if not src.exists():
         sys.exit(f"erreur: {src} introuvable")
-    dst = OUT / f"{name}.png"
-    page.goto(src.as_uri(), wait_until="networkidle")
+    dst = OUT / (f"{name}-{state}.png" if state else f"{name}.png")
+    page.goto(src.as_uri() + (f"#{state}" if state else ""), wait_until="networkidle")
     # Tailwind s'injecte apres le parse: laisser un tick de plus.
     page.wait_for_timeout(400)
     assert_styled(page, name)
     page.screenshot(path=str(dst), full_page=full_page)
-    print(f"{src.relative_to(ROOT)} -> {dst.relative_to(ROOT)}")
+    print(f"{src.relative_to(ROOT)}{'#' + state if state else ''} -> {dst.relative_to(ROOT)}")
     return dst
 
 

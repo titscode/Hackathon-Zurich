@@ -17,10 +17,15 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
 ## Règles de production d'un écran
 
 1. **Un écran = un fichier HTML autonome** dans `screens/`. Pas de build, pas de bundler.
-   Tailwind : `<script src="../design-system/tailwind.js"></script>` — le build CDN de Tailwind
-   est vendorisé dans le repo. **Ne pas utiliser `https://cdn.tailwindcss.com` directement** :
-   si le réseau ou un proxy bloque le script, la page rend sans aucun style et le PNG produit
-   est faux sans la moindre erreur. Même API qu'en CDN (`tailwind.config = {...}` inline marche).
+   Styles : `<link rel="stylesheet" href="../design-system/tokens.css">` (tokens de DESIGN.md,
+   Inter vendorisée, chrome iOS, composants) + `<script src="data.js">` (données partagées,
+   `statusBar()`, `tabBar()`, `homeIndicator()`, `star()`). **Rien ne vient d'un CDN** : si le
+   réseau ou un proxy bloque une ressource, la page rend sans style et le PNG est faux sans la
+   moindre erreur. Tailwind reste disponible en local (`../design-system/tailwind.js`) mais les
+   écrans RIDE n'en ont pas besoin.
+   Carte : Leaflet vendorisé (`../design-system/leaflet/`) + tuiles OSM mises en cache dans
+   `design-system/tiles/` et assombries par filtre CSS (CartoDB Dark Matter exige une clé API).
+   Après tout changement de zoom ou de zone : `python scripts/cache_tiles.py <ecran>[#etat]`.
 2. **Viewport 390 × 844** (iPhone 14/15). Le contenu vit dans un conteneur de cette taille exacte :
    ```html
    <meta name="viewport" content="width=390, initial-scale=1">
@@ -62,10 +67,12 @@ Ne jamais déclarer un écran terminé sans avoir fait ce cycle au moins une foi
 ## Screenshot
 
 ```bash
-python scripts/shot.py home              # screens/home.html → out/home.png
-python scripts/shot.py home --full-page  # page entière si l'écran scrolle
-python scripts/shot.py --all             # tous les écrans de screens/
+python scripts/shot.py 04-route            # screens/04-route.html → out/04-route.png
+python scripts/shot.py "08-explore#heat"   # état #heat de l'écran → out/08-explore-heat.png
+python scripts/shot.py 04-route --full-page
+python scripts/shot.py --all
 ```
+Un écran peut exposer des états via `location.hash` (`#heat`, `#fun`…) : un PNG par état.
 Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina).
 Prérequis : `pip install playwright && python -m playwright install chromium`.
 
@@ -90,7 +97,10 @@ python scripts/gen_image.py "photo of a bowl of granola, top view, soft daylight
 - Options : `--size 1024x1024` (défaut), `--seed 42` (reproductible), `--steps 4`.
 - Endpoint : API images OpenAI-compatible de DeepInfra.
 
-Conventions de nommage : `assets/<ecran>-<sujet>.png` (ex. `assets/home-hero.png`).
+Toutes les images du projet sont listées dans `scripts/gen_all_images.py` (une passe, seed fixe,
+préfixe de prompt DESIGN.md §5) : `assets/routes/<col>.png` (3:2), `assets/routes/<col>-tall.png`
+(9:16), `assets/avatars/<rider>.png`. Une nouvelle image = une ligne dans ce script, pas un appel
+à la main.
 
 ## Design system
 

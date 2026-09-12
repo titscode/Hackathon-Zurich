@@ -1,0 +1,175 @@
+@import url("fonts/inter.css");
+
+/* RIDE by BMW Motorrad — tokens (DESIGN.md fait foi).
+   Ne pas inventer de valeur hors de ce fichier : si un token manque, on l'ajoute ici d'abord. */
+
+:root {
+  /* §1 Fond et surfaces — noirs chauds, jamais bleutés */
+  --bg: #0A0B0D;
+  --surface-1: #121417;
+  --surface-2: #1A1D22;
+  --border: #262A31;
+  --border-strong: #343941;
+
+  /* §1 Texte */
+  --text-1: #F4F5F7;
+  --text-2: #9AA0A8;
+  --text-3: #5F6670;
+
+  /* §1 Accent BMW — un seul élément en accent plein par écran */
+  --accent: #1C69D4;
+  --accent-bright: #4D8FE6;
+  --accent-soft: rgba(28, 105, 212, 0.14);
+
+  /* §1 Sémantique, désaturés */
+  --positive: #3FBF7F;
+  --warning: #D9A441;
+  --danger: #D9534F;
+  --weather: #6FA8DC;
+
+  /* §1 Route sur la carte */
+  --route-selected: #F4F5F7;
+  --route-alt: #4A5058;
+  --route-day1: #F4F5F7;
+  --route-day2: #4D8FE6;
+  --route-day3: #9AA0A8;
+
+  /* §3 Espacements — grille 4 px */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --gutter: 20px;
+
+  /* §3 Rayons */
+  --r-card: 16px;
+  --r-btn: 12px;
+  --r-sheet: 20px;
+  --r-chip: 999px;
+
+  /* §6 Mouvement */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #000;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;          /* §2 : chiffres tabulaires partout */
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+}
+
+/* Le téléphone : 390×844 exact, rien ne déborde. */
+.screen {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-1);
+}
+
+/* ---------------------------------------------------------------- §2 Typo */
+.display     { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.title-1     { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+.title-2     { font-size: 20px; font-weight: 600; line-height: 1.25; }
+.body        { font-size: 15px; font-weight: 400; line-height: 1.45; }
+.body-strong { font-size: 15px; font-weight: 500; line-height: 1.45; }
+.caption     { font-size: 13px; font-weight: 400; line-height: 1.35; color: var(--text-2); }
+.label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.t2 { color: var(--text-2); } .t3 { color: var(--text-3); }
+
+/* ------------------------------------------------------- Chrome iOS (§4) */
+.statusbar {
+  height: 54px; padding: 0 var(--gutter); display: flex; align-items: flex-end;
+  padding-bottom: 8px; justify-content: space-between;
+  font-size: 12px; font-weight: 600; color: var(--text-1);
+  position: relative; z-index: 20;
+}
+.statusbar .icons { display: flex; align-items: center; gap: 6px; }
+.home-indicator {
+  position: absolute; left: 0; right: 0; bottom: 8px; height: 5px;
+  display: flex; justify-content: center; z-index: 30; pointer-events: none;
+}
+.home-indicator i { display: block; width: 134px; height: 5px; border-radius: 999px; background: var(--text-1); opacity: .9; }
+
+/* ------------------------------------------------------------ §4 Boutons */
+.btn {
+  height: 52px; width: 100%; border: 0; border-radius: var(--r-btn);
+  font-family: inherit; font-size: 15px; font-weight: 500; color: var(--text-1);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; transition: background 180ms var(--ease);
+}
+.btn-primary   { background: var(--accent); }
+.btn-secondary { background: var(--surface-2); border: 1px solid var(--border); }
+.btn-tertiary  {
+  height: auto; width: auto; background: none; color: var(--accent-bright);
+  font-size: 15px; font-weight: 500; padding: 0;
+}
+
+/* -------------------------------------------------------------- §4 Chips */
+.chip {
+  height: 34px; padding: 0 14px; border-radius: var(--r-chip);
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text-2); font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-bright); }
+
+/* -------------------------------------------------------------- §4 Cards */
+.card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-card); padding: var(--sp-4);
+}
+.card-photo {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-card); overflow: hidden; position: relative;
+}
+.card-photo .ph { position: relative; display: block; }
+/* §5 : filtre imposé à toutes les photos */
+.card-photo img, img.photo { filter: saturate(0.85) contrast(1.05); display: block; object-fit: cover; }
+/* §4 : overlay sur les 55 % inférieurs de l'image */
+.overlay {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 55%;
+  background: linear-gradient(to bottom, rgba(10,11,13,0), rgba(10,11,13,0.85));
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------- §4 Jauges */
+.gauge-track { height: 4px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.gauge-fill  { height: 100%; border-radius: 999px; background: var(--text-1); }
+
+/* ------------------------------------------------------------ §4 Avatars */
+.avatar { border-radius: 50%; border: 1px solid var(--border); object-fit: cover; filter: saturate(0.85) contrast(1.05); }
+
+/* ------------------------------------------------------- §4 Bottom sheet */
+.sheet {
+  background: var(--surface-2);
+  border-top-left-radius: var(--r-sheet); border-top-right-radius: var(--r-sheet);
+  padding: var(--sp-5); border-top: 1px solid var(--border);
+}
+.sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: var(--border-strong); margin: 0 auto 16px; }
+
+/* ----------------------------------------------------------- §4 Tab bar */
+.tabbar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 84px;
+  background: var(--surface-1); border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding-bottom: 20px; z-index: 25;
+}
+.tabbar a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  text-decoration: none; color: var(--text-3); font-size: 11px; font-weight: 500;
+}
+.tabbar a.active { color: var(--text-1); }   /* §4 : jamais en accent */
+
+/* §7 : la tab bar ne chevauche jamais le contenu */
+.scroll { overflow-y: auto; height: 100%; padding-bottom: 100px; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+a { text-decoration: none; color: inherit; }
