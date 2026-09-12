@@ -23,9 +23,19 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
    réseau ou un proxy bloque une ressource, la page rend sans style et le PNG est faux sans la
    moindre erreur. Tailwind reste disponible en local (`../design-system/tailwind.js`) mais les
    écrans RIDE n'en ont pas besoin.
-   Carte : Leaflet vendorisé (`../design-system/leaflet/`) + tuiles OSM mises en cache dans
-   `design-system/tiles/` et assombries par filtre CSS (CartoDB Dark Matter exige une clé API).
-   Après tout changement de zoom ou de zone : `python scripts/cache_tiles.py <ecran>[#etat]`.
+   Carte : Leaflet vendorisé (`../design-system/leaflet/`) + tuiles en cache local dans
+   `design-system/tiles/<fournisseur>/{z}/{x}/{y}.png`, servies hors-ligne. Le fournisseur est choisi par
+   `scripts/cache_tiles.py` et publié dans `design-system/tiles/source.js` (commité, sans clé) :
+   MapTiler `dataviz-dark` si la variable d'environnement `MAPTILER_KEY` existe (`setx MAPTILER_KEY "..."`
+   puis rouvrir le terminal ; jamais de clé dans un fichier du repo), sinon OSM avec labels gommés par
+   Pillow (`tiles/_raw/osm` brut → `tiles/osm` servi) et assombri par le filtre CSS `.map-osm`.
+   Dans un écran : `<script src="../design-system/leaflet/leaflet.js">`, puis `../design-system/tiles/source.js`,
+   puis `data.js` ; la carte s'obtient avec `rideTileLayer(map)` et se cadre avec `rideFitBounds(map, bounds,
+   { paddingTopLeft, paddingBottomRight })` dans un `<div class="map-slot">` (zoom entier + scale CSS + tuiles
+   recopiées sur un canvas : aucune couture, aucun flou ; `zoomSnap: 1` obligatoire). Épaisseur visuelle des
+   polylines via l'option `vw`, marqueurs et étiquettes en `.keep-size`.
+   Après tout changement de zoom ou de zone : `python scripts/cache_tiles.py <ecran>[#etat]`
+   (`--reprocess` regénère `tiles/osm` après un changement de l'algorithme de gommage).
 2. **Viewport 390 × 844** (iPhone 14/15). Le contenu vit dans un conteneur de cette taille exacte :
    ```html
    <meta name="viewport" content="width=390, initial-scale=1">

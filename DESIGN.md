@@ -33,8 +33,8 @@ Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsch
 
 **Route sur la carte**
 
-- `route-selected`: #F4F5F7 (blanc, 4 px, halo rgba(244,245,247,0.25) 10 px)
-- `route-alt`: #4A5058 (2.5 px)
+- `route-selected`: #F4F5F7 (blanc, 4 px, halo rgba(244,245,247,0.25) 10 px, retombée rgba(244,245,247,0.08) 18 px pour que le halo se lise comme un halo et non comme un contour)
+- `route-alt`: #4A5058 (2.5 px, opacité 0.6 ; toujours sous le halo du tracé sélectionné)
 - `route-day1` / `day2` / `day3` : #F4F5F7, #4D8FE6, #9AA0A8
 
 **Règle d'usage** : un écran contient au maximum un élément en accent plein (le CTA). Tout le reste est blanc, gris, ou photo.
@@ -45,6 +45,7 @@ Une seule famille : **Inter** (Google Fonts, poids 400, 500, 600). Jamais de con
 
 - `display`: 34 px / 600 / letter-spacing -0.02em (chiffres clés : durée, distance)
 - `title-1`: 26 px / 600 / -0.01em (titre d'écran)
+- `display-2`: 26 px / 600 / -0.015em (chiffres des cards jour de l'écran trip)
 - `title-2`: 20 px / 600 (titre de card, nom de col)
 - `body`: 15 px / 400 / line-height 1.45
 - `body-strong`: 15 px / 500
@@ -69,7 +70,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 **Bouton primaire** : hauteur 52 px, fond `accent`, texte `text-1` 15/500, rayon 12, pleine largeur. Un seul par écran.
 **Bouton secondaire** : hauteur 52 px, fond `surface-2`, bordure `border`, texte `text-1`.
 **Bouton tertiaire** : texte `accent-bright`, sans fond.
-**Chips** : hauteur 34 px, padding 0 14 px, fond `surface-2`, bordure `border` ; active : fond `accent-soft`, bordure `accent`, texte `accent-bright`.
+**Chips** : hauteur 34 px, padding 0 14 px, fond `surface-2`, bordure `border` ; active : fond `accent-soft`, bordure `accent`, texte `accent-bright` ; choisie (réponse déjà donnée, écran vocal) : bordure `border-strong`, texte `text-1`, sans accent.
 **Card** : `surface-1`, bordure `border`, rayon 16, padding 16.
 **Card photo** : image 3:2 en haut, coins supérieurs 16, overlay bas linéaire rgba(10,11,13,0) → rgba(10,11,13,0.85) sur les 55 % inférieurs, titre `title-2` en blanc posé sur l'overlay, métadonnées `caption` en dessous de l'image dans une zone `surface-1`.
 **Jauge** : piste `border` 4 px rayon 999, remplissage `text-1` (pas accent), valeur en `body-strong` à droite.
@@ -84,7 +85,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 
 **Photos** : générées via `scripts/gen_image.py` (DeepInfra, FLUX). Format 3:2 (1200×800) pour les cards, 9:16 pour les plein écran. Prompt de base à préfixer : « photorealistic editorial photograph, muted cinematic color grading, soft directional light, no text, no logos, no people unless specified, ». Sujets : routes de col alpin (Kesselberg, Sudelfeld, Stelvio, Grimsel...), lacs bavarois, une BMW R 1300 GS garée sur une route de montagne, portraits neutres pour les avatars (buste, fond uni sombre, léger sourire). Toute photo reçoit un filtre CSS : `saturate(0.85) contrast(1.05)`. Aucune image de stock, aucun placeholder, aucune illustration vectorielle de montagne.
 
-**Carte** : Leaflet 1.9 (CDN) avec tuiles CartoDB Dark Matter (`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`, attribution masquée dans le mockup). Tracés en polylines avec des coordonnées réelles approximatives (Munich 48.137,11.575 ; Starnberg 47.999,11.339 ; Bad Tölz 47.760,11.558 ; Walchensee 47.593,11.328 ; Garmisch 47.492,11.095). Position actuelle : point blanc 12 px avec halo `accent-soft` 28 px. Aucune carte dessinée en SVG.
+**Carte** : Leaflet 1.9 (vendorisé) avec tuiles MapTiler `dataviz-dark` (raster 256 px @2x, clé dans `MAPTILER_KEY`, attribution masquée dans le mockup), assombries (`brightness(0.65)`) pour que le sol reste sous `surface-2`. Sans clé : tuiles OSM avec labels gommés à la mise en cache et filtre `invert(1) hue-rotate(180deg) saturate(0.2) brightness(0.45) contrast(1.25)`. Un voile `bg` → transparent de 64 px sous la status bar quand la carte y passe. Tracés en polylines avec des coordonnées réelles approximatives (Munich 48.137,11.575 ; Starnberg 47.999,11.339 ; Bad Tölz 47.760,11.558 ; Walchensee 47.593,11.328 ; Garmisch 47.492,11.095). Position actuelle : point blanc 12 px avec halo `accent-soft` 28 px. Aucune carte dessinée en SVG.
 
 **Illustration de l'écran TFT moto** : cadre paysage 10,25", fond `bg`, mêmes typos, flèche de manœuvre en `text-1`, rien d'autre en couleur.
 
