@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Companion</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Plein écran bg, pas de tab bar (SCREENS.md 06). Colonne : orbe / transcript / pied. */
+    .screen.voice { display: flex; flex-direction: column; }
+    .close {
+      position: absolute; top: 60px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center; color: var(--text-2); z-index: 5;
+    }
+
+    /* Orbe vocal — DESIGN.md §6 : 120 px, blanc à 90 %, pulsation 1 → 1.06 quand le compagnon parle,
+       bordure accent quand l'utilisateur parle. Pas de glow, pas de particules. */
+    .orb-wrap { flex: none; text-align: center; padding: 8px 0 0; }
+    .orb-wrap .label { margin: 0 0 14px; }
+    .orb {
+      width: 120px; height: 120px; border-radius: 50%; margin: 0 auto;
+      background: rgba(244, 245, 247, 0.9); border: 3px solid transparent; box-sizing: border-box;
+      transition: border-color 200ms var(--ease);
+    }
+    .orb.speak  { animation: pulse 1.6s var(--ease) infinite alternate; }
+    .orb.listen { border-color: var(--accent); }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+    .state { margin: 12px 0 0; color: var(--text-2); }
+
+    /* Transcript : compagnon en text-1, Tim en text-2 avec son avatar 24 px, pas de bulle. */
+    .transcript { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 6px var(--gutter) 8px; }
+    .transcript::-webkit-scrollbar { display: none; }
+    .turn { margin-top: 12px; }
+    .turn p { margin: 0; }
+    .turn.t { display: flex; gap: 10px; align-items: flex-start; }
+    .turn.t .avatar { width: 24px; height: 24px; flex: none; margin-top: 1px; }
+    .turn.t p { color: var(--text-2); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; opacity: 0; transition: opacity 200ms var(--ease); }
+    .chips.in { opacity: 1; }
+    .caret { display: inline-block; width: 2px; height: 15px; background: var(--text-1); vertical-align: -2px; margin-left: 1px; }
+
+    /* Pied : ligne d'apprentissage, CTA (état terminé seulement), Replay. */
+    .bottom { flex: none; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px var(--gutter) 26px; }
+    .learn { display: flex; align-items: center; gap: 6px; margin: 0; }
+    .learn svg { color: var(--text-3); flex: none; }
+    #cta { display: none; }
+    .screen.done #cta { display: flex; animation: fadein 200ms var(--ease); }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+<div class="screen voice" id="screen">
+  <div id="sb"></div>
+  <a class="close" href="02-home.html" aria-label="Close">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </a>
+
+  <header class="orb-wrap">
+    <p class="label">Companion</p>
+    <div class="orb" id="orb"></div>
+    <p class="caption state" id="state">Speaking</p>
+  </header>
+
+  <div class="transcript" id="transcript"></div>
+
+  <footer class="bottom">
+    <p class="learn caption" id="learn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4M22 5h-4M4 17v2M5 18H3"/></svg>
+      <span><span class="t3">Learning from you:</span> <span id="learn-txt"></span></span>
+    </p>
+    <a class="btn btn-primary" id="cta" href="07-trip.html">See your Alpine Loop</a>
+    <button class="btn-tertiary" id="replay" type="button">Replay</button>
+  </footer>
+
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  /* Le hash est lu avant tout timer : #live et #done sont des états figés, déterministes (shot.py).
+     Sans hash : la conversation se joue (frappe 24 ms/caractère, pauses 600 ms), puis état terminé. */
+  const HASH = location.hash.slice(1);
+  const T = RIDE.voice.turns;
+  const $ = id => document.getElementById(id);
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("learn-txt").textContent = RIDE.voice.learning;
+  const orb = $("orb"), stateEl = $("state"), tr = $("transcript"), screen = $("screen");
+
+  function chipsHtml(t, cls) {
+    return `<div class="chips${cls}">${t.chips.map(c => `<span class="chip">${c}</span>`).join("")}</div>`;
+  }
+  function turnEl(t, { chips = false, partial = null } = {}) {
+    const el = document.createElement("div");
+    el.className = "turn " + t.who;
+    const text = partial == null ? t.text : t.text.slice(0, partial) + '<i class="caret"></i>';
+    el.innerHTML = t.who === "t"
+      ? `<img class="avatar" src="${RIDE.user.avatar}" alt=""><p class="body">${text}</p>`
+      : `<p class="body">${text}</p>`;
+    if (chips && t.chips) el.insertAdjacentHTML("beforeend", chipsHtml(t, " in"));
+    return el;
+  }
+  function setOrb(mode) {
+    orb.className = "orb" + (mode === "idle" ? "" : " " + mode);
+    stateEl.textContent = { speak: "Speaking", listen: "Listening", idle: "Trip ready" }[mode];
+  }
+
+  /* État figé, sans timer. upto = tours complets affichés ; chips sous le dernier tour s'il pose une question. */
+  function paint({ upto, orb: mode, done, chips }) {
+    tr.innerHTML = "";
+    for (let i = 0; i < upto; i++) tr.appendChild(turnEl(T[i], { chips: chips && i === upto - 1 }));
+    setOrb(mode);
+    screen.classList.toggle("done", done);
+    tr.scrollTop = tr.scrollHeight;
+  }
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let run = 0;
+  async function play() {
+    const id = ++run;
+    tr.innerHTML = "";
+    screen.classList.remove("done");
+    for (let i = 0; i < T.length; i++) {
+      const t = T[i];
+      setOrb(t.who === "c" ? "speak" : "listen");
+      const el = turnEl(t, { partial: 0 });
+      tr.appendChild(el);
+      const p = el.querySelector("p");
+      for (let n = 1; n <= t.text.length; n++) {
+        if (id !== run) return;
+        p.innerHTML = t.text.slice(0, n) + '<i class="caret"></i>';
+        tr.scrollTop = tr.scrollHeight;
+        await sleep(24);
+      }
+      p.textContent = t.text;
+      if (t.chips) {
+        el.insertAdjacentHTML("beforeend", chipsHtml(t, ""));
+        const chips = el.querySelector(".chips");
+        requestAnimationFrame(() => chips.classList.add("in"));
+        setOrb("listen");
+        tr.scrollTop = tr.scrollHeight;
+        await sleep(600);
+        if (id !== run) return;
+        const pick = [...chips.children].find(c => c.textContent === t.pick);
+        if (pick) pick.classList.add("picked");        // Tim choisit…
+        await sleep(300);
+        chips.remove();                                 // …et sa réponse transcrite remplace les chips
+      } else {
+        await sleep(600);
+      }
+      if (id !== run) return;
+    }
+    setOrb("idle");
+    screen.classList.add("done");
+    tr.scrollTop = tr.scrollHeight;
+  }
+
+  if (HASH === "live")      paint({ upto: 5, orb: "listen", done: false, chips: true });
+  else if (HASH === "done") paint({ upto: 7, orb: "idle",   done: true,  chips: false });
+  else play();
+  $("replay").addEventListener("click", play);
+</script>
+</body>
+</html>
