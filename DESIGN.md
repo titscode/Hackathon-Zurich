@@ -1,41 +1,102 @@
-# DESIGN.md — à remplir avant de produire les écrans
+# DESIGN.md : RIDE by BMW Motorrad
 
-Ce fichier est la source de vérité produit. Claude le lit avant d'écrire le moindre HTML.
-Tant qu'une section est vide, l'écran correspondant ne peut pas être fidèle : remplis d'abord.
+Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsche, Apple Maps en mode sombre, le cockpit d'une BMW la nuit. Rien ne crie. La qualité vient de la typographie, des espacements, des vraies photos et de la vraie carte. Toute décision qui n'est pas couverte ici se tranche vers « moins ».
 
-## 1. Produit
+## 1. Palette
 
-- **Nom :** …
-- **En une phrase :** …
-- **Plateforme :** iOS, mockups statiques 390 × 844
-- **Ton visuel :** (ex. sobre et dense type Revolut / chaleureux et aéré type Headspace)
+**Fond et surfaces** (noirs chauds, jamais bleutés)
 
-## 2. Utilisateur
+- `bg`: #0A0B0D
+- `surface-1`: #121417 (cards)
+- `surface-2`: #1A1D22 (cards élevées, bottom sheets)
+- `border`: #262A31 (1 px, toujours)
+- `border-strong`: #343941 (états focus, séparateurs marqués)
 
-- **Persona principal :** prénom, âge, contexte d'usage
-- **Ce qu'il vient faire dans l'app :** …
-- **Moment d'usage :** (matin, en déplacement, 30 s par session…)
+**Texte**
 
-## 3. Écrans à produire
+- `text-1`: #F4F5F7 (titres, valeurs)
+- `text-2`: #9AA0A8 (labels, descriptions)
+- `text-3`: #5F6670 (métadonnées, placeholders)
 
-| # | Fichier | Écran | Réf. dans `refs/` | État |
-|---|---|---|---|---|
-| 1 | `screens/onboarding-1.html` | … | `refs/…png` | à faire |
-| 2 | `screens/home.html` | … | `refs/…png` | à faire |
+**Accent BMW**
 
-## 4. Données réalistes à réutiliser
+- `accent`: #1C69D4 (bouton primaire, état actif, tab sélectionnée)
+- `accent-bright`: #4D8FE6 (texte sur fond sombre, liens, valeurs mises en avant)
+- `accent-soft`: rgba(28,105,212,0.14) (fond des chips actives, halo)
 
-Liste ici les vrais noms, montants, dates, libellés utilisés partout dans les mockups, pour
-qu'ils soient cohérents d'un écran à l'autre. Exemple :
+**Sémantique** (désaturés)
 
-- Utilisateur : Léa Meier, Zurich
-- Solde : CHF 2 847.30
-- Transactions : Migros CHF 43.20 · SBB CHF 12.00 · Starbucks CHF 6.80
+- `positive`: #3FBF7F
+- `warning`: #D9A441
+- `danger`: #D9534F
+- `weather`: #6FA8DC
 
-## 5. Direction artistique
+**Route sur la carte**
 
-- **Couleur primaire :** …
-- **Police :** … (système par défaut si non précisé)
-- **Rayons :** … px
-- **Références visuelles :** ce qui dans `refs/` fait autorité, et sur quel aspect
-  (ex. « `refs/revolut-home.png` pour la densité, `refs/linear-app.png` pour la typo »)
+- `route-selected`: #F4F5F7 (blanc, 4 px, halo rgba(244,245,247,0.25) 10 px)
+- `route-alt`: #4A5058 (2.5 px)
+- `route-day1` / `day2` / `day3` : #F4F5F7, #4D8FE6, #9AA0A8
+
+**Règle d'usage** : un écran contient au maximum un élément en accent plein (le CTA). Tout le reste est blanc, gris, ou photo.
+
+## 2. Typographie
+
+Une seule famille : **Inter** (Google Fonts, poids 400, 500, 600). Jamais de condensé, jamais de capitales sur les titres.
+
+- `display`: 34 px / 600 / letter-spacing -0.02em (chiffres clés : durée, distance)
+- `title-1`: 26 px / 600 / -0.01em (titre d'écran)
+- `title-2`: 20 px / 600 (titre de card, nom de col)
+- `body`: 15 px / 400 / line-height 1.45
+- `body-strong`: 15 px / 500
+- `caption`: 13 px / 400 / text-2
+- `label`: 11 px / 500 / letter-spacing 0.08em / capitales / text-3 (uniquement pour les petits labels de section et sous les chiffres)
+
+Chiffres : `font-variant-numeric: tabular-nums` partout.
+
+## 3. Espacements et formes
+
+Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
+
+- Marge latérale d'écran : 20 px
+- Espace entre cards : 12 px
+- Padding interne des cards : 16 px
+- Rayon cards : 16 px ; boutons : 12 px ; chips : 999 px ; avatars : cercle
+- Ombres : aucune. La hiérarchie vient des surfaces et de la bordure 1 px.
+- Dégradés : interdits sur les surfaces. Autorisés uniquement en overlay sur les photos (voir §5).
+
+## 4. Composants
+
+**Bouton primaire** : hauteur 52 px, fond `accent`, texte `text-1` 15/500, rayon 12, pleine largeur. Un seul par écran.
+**Bouton secondaire** : hauteur 52 px, fond `surface-2`, bordure `border`, texte `text-1`.
+**Bouton tertiaire** : texte `accent-bright`, sans fond.
+**Chips** : hauteur 34 px, padding 0 14 px, fond `surface-2`, bordure `border` ; active : fond `accent-soft`, bordure `accent`, texte `accent-bright`.
+**Card** : `surface-1`, bordure `border`, rayon 16, padding 16.
+**Card photo** : image 3:2 en haut, coins supérieurs 16, overlay bas linéaire rgba(10,11,13,0) → rgba(10,11,13,0.85) sur les 55 % inférieurs, titre `title-2` en blanc posé sur l'overlay, métadonnées `caption` en dessous de l'image dans une zone `surface-1`.
+**Jauge** : piste `border` 4 px rayon 999, remplissage `text-1` (pas accent), valeur en `body-strong` à droite.
+**Slider Fast ↔ Fun** : piste `border` 4 px, 3 crans marqués par des points 6 px, poignée 28 px blanche avec bordure 2 px `accent`, labels `caption` sous les crans.
+**Bottom sheet** : `surface-2`, coins supérieurs 20, poignée 36×4 px `border-strong` centrée, padding 20.
+**Tab bar** : 84 px avec safe area, `surface-1`, bordure haute `border`, 4 onglets, icône 24 px + label 11 px, actif en `text-1`, inactif en `text-3`. Jamais en accent.
+**Status bar iOS** : 09:41, signal, batterie, en `text-1`, 12 px.
+**Avatar** : 32 ou 40 px, photo générée, bordure 1 px `border`.
+**Icônes** : Lucide uniquement, 20 px dans le texte, 24 px dans les boutons et la tab bar, stroke 1.5. Jamais d'emoji, jamais d'icône colorée.
+
+## 5. Images et carte
+
+**Photos** : générées via `scripts/gen_image.py` (DeepInfra, FLUX). Format 3:2 (1200×800) pour les cards, 9:16 pour les plein écran. Prompt de base à préfixer : « photorealistic editorial photograph, muted cinematic color grading, soft directional light, no text, no logos, no people unless specified, ». Sujets : routes de col alpin (Kesselberg, Sudelfeld, Stelvio, Grimsel...), lacs bavarois, une BMW R 1300 GS garée sur une route de montagne, portraits neutres pour les avatars (buste, fond uni sombre, léger sourire). Toute photo reçoit un filtre CSS : `saturate(0.85) contrast(1.05)`. Aucune image de stock, aucun placeholder, aucune illustration vectorielle de montagne.
+
+**Carte** : Leaflet 1.9 (CDN) avec tuiles CartoDB Dark Matter (`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`, attribution masquée dans le mockup). Tracés en polylines avec des coordonnées réelles approximatives (Munich 48.137,11.575 ; Starnberg 47.999,11.339 ; Bad Tölz 47.760,11.558 ; Walchensee 47.593,11.328 ; Garmisch 47.492,11.095). Position actuelle : point blanc 12 px avec halo `accent-soft` 28 px. Aucune carte dessinée en SVG.
+
+**Illustration de l'écran TFT moto** : cadre paysage 10,25", fond `bg`, mêmes typos, flèche de manœuvre en `text-1`, rien d'autre en couleur.
+
+## 6. Mouvement
+
+Transitions d'écran : fade 200 ms. Micro-interactions : 150 à 250 ms, easing `cubic-bezier(0.2, 0, 0, 1)`. Compteurs animés sur les chiffres du slider (300 ms). Orbe vocal : cercle 120 px, blanc à 90 %, pulsation d'échelle 1 → 1.06 quand le compagnon parle, bordure `accent` quand l'utilisateur parle. Pas de glow orange, pas de particules.
+
+## 7. Interdits (à vérifier avant chaque export)
+
+- Orange, dégradés de surface, ombres portées, condensé, capitales sur titres, emojis.
+- Plus d'un élément accent plein par écran.
+- Plus de 3 blocs d'information sous la ligne de flottaison sur un écran principal.
+- Texte sous 11 px, contraste sous 4.5:1.
+- Tab bar qui chevauche du contenu (padding-bottom 100 px sur le scroll).
+- Lorem ipsum, données incohérentes entre écrans (mêmes chiffres partout : 104 km, 1 h 30 pour Balanced, etc.).
