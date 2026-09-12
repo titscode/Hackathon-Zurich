@@ -8,3 +8,8 @@ build/
 __pycache__/
 .venv/
 venv/
+
+# Mockups
+.playwright-mcp/
+assets/test-*.png
+out/test-*.png
