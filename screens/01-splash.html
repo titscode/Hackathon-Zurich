@@ -9,16 +9,20 @@
     /* Splash (SCREENS.md 01) : logo, tagline, tracé blanc qui se dessine, connexion à la moto, puis 02 après 2 s.
        #connected : image finale figée, sans animation ni redirection. */
     .screen.splash { display: flex; flex-direction: column; align-items: center; }
-    .logo { margin-top: 176px; text-align: center; }
+    /* Photo 9:16 plein écran sous un voile bg 55 → 88 %, légèrement teinté (DESIGN.md §3) */
+    .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: saturate(0.85) contrast(1.05); }
+    .veil { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,11,13,.55), rgba(14,18,26,.72) 45%, rgba(10,11,13,.92)); }
+    .screen.splash > :not(.bg):not(.veil) { position: relative; z-index: 1; }
+    .logo { margin-top: 170px; text-align: center; }
     .logo .display { letter-spacing: 0.02em; font-size: 34px; }
-    .logo .label { margin-top: 6px; }
-    .tag { margin: 12px 0 0; color: var(--text-2); }
+    .logo .label { margin-top: 6px; color: var(--text-2); }
+    .tagline { margin: 12px 0 0; color: var(--text-2); }
 
     .road { margin-top: 40px; width: 260px; height: 160px; display: block; }
     .road path { fill: none; stroke: var(--text-1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
                  stroke-dasharray: var(--len, 700); stroke-dashoffset: var(--len, 700); }
     .road .dot { fill: var(--text-1); stroke: var(--bg); stroke-width: 2; opacity: 0; }
-    .road .halo { fill: var(--accent-soft); opacity: 0; }
+    .road .halo { fill: rgba(28, 105, 212, 0.35); opacity: 0; }
     .screen.play .road path { animation: draw 1.4s var(--ease) forwards; }
     .screen.play .road .dot, .screen.play .road .halo { animation: show 200ms var(--ease) 1.4s forwards; }
     .screen.connected .road path { stroke-dashoffset: 0; }
@@ -28,18 +32,21 @@
 
     .conn { margin-top: auto; margin-bottom: 64px; display: flex; align-items: center; gap: 8px; opacity: 0; transition: opacity 200ms var(--ease); }
     .conn.on { opacity: 1; }
-    .conn .check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--positive); color: var(--positive); display: grid; place-items: center; }
+    .conn { color: var(--text-1); }
+    .conn .check { width: 22px; height: 22px; border-radius: 50%; background: var(--positive-soft); border: 1.5px solid var(--positive); color: var(--positive); display: grid; place-items: center; }
   </style>
 </head>
 <body>
 <div class="screen splash" id="screen">
+  <img class="bg" src="../assets/routes/alpine-pass-tall.png" alt="">
+  <span class="veil"></span>
   <div id="sb" style="align-self:stretch"></div>
 
   <div class="logo">
     <div class="display">RIDE</div>
     <p class="label">by BMW Motorrad</p>
   </div>
-  <p class="body tag">Find your best road</p>
+  <p class="body tagline">Find your best road</p>
 
   <svg class="road" viewBox="0 0 260 160" aria-hidden="true">
     <path id="path" d="M14 146 C50 146 70 140 96 128 S150 118 150 104 S96 92 92 78 S130 60 172 56 S236 52 236 40 S196 28 190 22 S214 12 246 12"/>

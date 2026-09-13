@@ -32,7 +32,7 @@
     .me i { width: 12px; height: 12px; border-radius: 50%; background: var(--text-1); border: 2px solid var(--bg); box-sizing: content-box; }
 
     /* Bottom sheet */
-    .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 55%; padding: 16px var(--gutter) 0; display: flex; flex-direction: column; z-index: 15; }
+    .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 54%; padding: 16px var(--gutter) 0; display: flex; flex-direction: column; z-index: 15; }
     .sheet > * { flex: none; }
     .sheet-handle { margin-bottom: 10px; }
 
@@ -57,15 +57,20 @@
     .delta { margin-top: 6px; }
 
     /* 4 jauges en 2×2 */
-    .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-top: 12px; }
+    .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-top: 10px; }
     .g .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-    .g .row .caption { color: var(--text-2); }
+    .g .row .caption { color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+    .g .row .caption svg { flex: none; }
+    .g.accent .row svg { color: var(--accent-bright); }  .g.positive .row svg { color: var(--positive); }
+    .g.weather .row svg { color: var(--weather); }       .g.warning .row svg { color: var(--warning); }
+    .seg .meta svg { color: var(--star); }
+    .delta { display: flex; align-items: center; gap: 8px; }
     .g .row .body-strong { font-size: 14px; }
 
     /* Card segment : style partagé .seg (tokens.css) */
     .seg { margin-top: 10px; }
 
-    .cta { margin-top: 10px; padding-bottom: 22px; }
+    .cta { margin-top: 10px; padding-bottom: 28px; }
   </style>
 </head>
 <body>
@@ -143,21 +148,30 @@
   const lbls = document.querySelectorAll(".slider .lbl");
   const stopsLeft = ["14px", "50%", "calc(100% - 14px)"];
 
-  function gauge(label, value, pct) {
-    return `<div class="g"><div class="row"><span class="caption">${label}</span><span class="body-strong">${value}</span></div>
-      <div class="gauge-track"><div class="gauge-fill" style="width:${pct}%"></div></div></div>`;
+  const gi = {
+    curv: '<path d="M4 20v-7a4 4 0 0 1 4-4h12M15 14l5-5-5-5"/>',
+    scenic: '<path d="m3 20 5-12 4 7 3-4 6 9z"/><circle cx="17" cy="6" r="2"/>',
+    weather: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    rain: '<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/>',
+    community: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  };
+  const gsvg = d => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  /* DESIGN.md §1 : chaque mesure a sa couleur (Curviness accent, Scenic positive, Weather weather, Community warning) */
+  function gauge(label, value, pct, color, icon) {
+    return `<div class="g ${color}"><div class="row"><span class="caption">${gsvg(icon)}${label}</span><span class="body-strong">${value}</span></div>
+      <div class="gauge-track"><div class="gauge-fill ${color}" style="width:${pct}%"></div></div></div>`;
   }
 
   function render(i) {
     const r = RIDE.routes[i];
     document.getElementById("k-time").textContent = r.time;
     document.getElementById("k-km").textContent = r.km;
-    document.getElementById("delta").textContent = r.delta;
+    document.getElementById("delta").innerHTML = `<span>${r.delta}</span>${i === 1 ? '<span class="tag positive">Best pick</span>' : i === 2 ? '<span class="tag accent">Twisties</span>' : ""}`;
     document.getElementById("gauges").innerHTML =
-      gauge("Curviness", `${r.curviness}/10`, r.curviness * 10) +
-      gauge("Scenic", `${r.scenic}/10`, r.scenic * 10) +
-      gauge("Weather", r.weather, r.weather === "Clear" ? 100 : 55) +
-      gauge("Community", r.community ?? "—", r.community ? r.community / 5 * 100 : 0);
+      gauge("Curviness", `${r.curviness}/10`, r.curviness * 10, "accent", gi.curv) +
+      gauge("Scenic", `${r.scenic}/10`, r.scenic * 10, "positive", gi.scenic) +
+      gauge("Weather", r.weather, r.weather === "Clear" ? 100 : 55, "weather", r.weather === "Clear" ? gi.weather : gi.rain) +
+      gauge("Community", r.community ?? "—", r.community ? r.community / 5 * 100 : 0, "warning", gi.community);
     const s = i === 2 ? segFun : seg;
     const segEl = document.getElementById("seg");
     if (r.segments.length === 0) {

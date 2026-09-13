@@ -41,12 +41,14 @@
     .turn.t p { color: var(--text-2); }
     .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; opacity: 0; transition: opacity 200ms var(--ease); }
     .chips.in { opacity: 1; }
+    .chips .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-bright); }
+    .chips .chip.picked::before { background: var(--positive); }
     .caret { display: inline-block; width: 2px; height: 15px; background: var(--text-1); vertical-align: -2px; margin-left: 1px; }
 
     /* Pied : ligne d'apprentissage, CTA (état terminé seulement), Replay. */
     .bottom { flex: none; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px var(--gutter) 26px; }
     .learn { display: flex; align-items: center; gap: 6px; margin: 0; }
-    .learn svg { color: var(--text-3); flex: none; }
+    .learn svg { color: var(--accent-bright); flex: none; }
     #cta { display: none; }
     .screen.done #cta { display: flex; animation: fadein 200ms var(--ease); }
     @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }

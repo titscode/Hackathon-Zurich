@@ -6,7 +6,12 @@
   <title>RIDE — Where to?</title>
   <link rel="stylesheet" href="../design-system/tokens.css">
   <style>
-    .head { padding: 4px var(--gutter) 0; display: flex; align-items: center; gap: 6px; }
+    /* Bandeau photo derrière la status bar, le titre et le champ */
+    .band { position: absolute; left: 0; right: 0; top: 0; height: 260px; z-index: 0; }
+    .band img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; filter: saturate(0.85) contrast(1.05); }
+    .band::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,11,13,.45), rgba(14,18,26,.72) 50%, var(--bg) 88%); }
+    .statusbar, .scroll { position: relative; z-index: 1; }
+    .head { padding: 8px var(--gutter) 0; display: flex; align-items: center; gap: 6px; }
     .head .back-btn { margin-left: -10px; color: var(--text-2); }
     .head .title-1 { margin: 0; }
 
@@ -17,6 +22,7 @@
       display: flex; align-items: center; gap: 12px;
     }
     .field svg { color: var(--text-2); flex: none; }
+    .field svg.mic { color: var(--accent-bright); }
     .field .ph { flex: 1; font-size: 15px; color: var(--text-3); display: flex; align-items: center; }
     .field .caret { width: 2px; height: 20px; background: var(--text-1); margin-right: 2px; }
 
@@ -25,9 +31,10 @@
     .recents { padding: 4px var(--gutter) 0; }
     .recents .list-row { padding: 14px 0; }
     .recents .t p { font-size: 15px; }
+    .recents .ico-tint { width: 36px; height: 36px; border-radius: 10px; }
 
     .out { padding: 24px var(--gutter) 0; }
-    .out .btn svg { color: var(--text-2); }
+    .out .btn svg { color: var(--accent-bright); }
     .out .caption { text-align: center; margin: 10px 0 0; }
 
     /* Suggestions du week-end : mêmes mini cards photo que 02 */
@@ -38,11 +45,13 @@
     .mini .txt { position: absolute; left: 12px; right: 12px; bottom: 12px; }
     .mini .name { font-size: 15px; font-weight: 600; margin: 0 0 3px; color: var(--text-1); }
     .mini .meta { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-2); }
-    .mini .meta svg { color: var(--text-1); }
+    .mini .meta svg { color: var(--star); }
+    .mini .tags { position: absolute; left: 12px; top: 12px; display: flex; gap: 6px; }
   </style>
 </head>
 <body>
 <div class="screen">
+  <div class="band"><img src="../assets/routes/bavarian-morning.png" alt=""></div>
   <div id="sb"></div>
 
   <div class="scroll">
@@ -56,7 +65,7 @@
     <div class="field">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <span class="ph" id="ph"></span>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
+      <svg class="mic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
     </div>
 
     <div class="section"><p class="label">Recent</p></div>
@@ -90,13 +99,14 @@
   const chev = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
   $("recents").innerHTML = D.recents.map(r => `
     <a class="list-row" href="${r.href}">
-      <span class="ico">${clock}</span>
+      <span class="ico-tint weather">${clock}</span>
       <div class="t"><p class="body-strong">${r.name}</p><p class="caption">${r.sub}</p></div>
       <span class="end">${chev}</span>
     </a>`).join("");
   $("near").innerHTML = RIDE.segments.slice(0, 3).map(s => `
     <a class="card-photo mini" href="09-segment.html">
       <span class="ph"><img src="../assets/routes/${s.photo}.png" alt="" style="height:200px"><span class="overlay"></span></span>
+      <span class="tags">${s.tags.slice(0, 2).map(tagHtml).join("")}</span>
       <span class="txt"><p class="name">${s.name}</p><span class="meta">${star(11)} ${s.rating} · ${s.km} · curv ${s.curv}</span></span>
     </a>`).join("");
 </script>

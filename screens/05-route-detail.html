@@ -16,7 +16,8 @@
 
     /* 3 tuiles de chiffres (ref onX : Distance / Elevation gain / Elevation loss) */
     .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .tile { padding: 12px 14px; }
+    .tile { padding: 12px 12px; }
+    .tile .ico-tint { width: 28px; height: 28px; border-radius: 8px; margin-bottom: 8px; }
     .tile .display-2 { font-size: 22px; margin: 0; }
     .tile .label { margin-top: 4px; }
 
@@ -32,6 +33,7 @@
 
     .section-title { margin: 8px 0 -4px; }
     .list .body-strong { font-size: 14px; }
+    .list .thumb { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; flex: none; filter: saturate(0.85) contrast(1.05); }
     .list .end { white-space: nowrap; }
 
     /* Météo heure par heure : ligne horizontale */
@@ -40,7 +42,9 @@
     .hour { flex: none; width: 60px; padding: 10px 0; text-align: center; border-radius: 12px; background: var(--surface-1); border: 1px solid var(--border); }
     .hour .caption { font-size: 12px; color: var(--text-3); }
     .hour svg { display: block; margin: 6px auto; color: var(--text-2); }
+    .hour.sun svg { color: var(--warning); }
     .hour.rain svg { color: var(--weather); }
+    .hour.rain { border-color: transparent; background: var(--weather-soft); }
     .hour .body-strong { font-size: 14px; }
   </style>
 </head>
@@ -95,8 +99,13 @@
   $("hi").innerHTML = homeIndicator();
   $("sub").textContent = `Most fun · via Bad Tölz, Walchensee, Kesselberg`;
 
+  const ti = {
+    Distance: ["accent", '<path d="M4 19 8 5M20 19 16 5M12 8v2M12 13v2M12 18v1"/>'],
+    Riding: ["weather", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
+    Summit: ["positive", '<path d="m3 20 6-14 4 8 2-3 6 9z"/>'],
+  };
   $("tiles").innerHTML = [[R.km, "Distance"], [R.time, "Riding"], [D.maxAlt, "Summit"]]
-    .map(([v, l]) => `<div class="card tile stat"><div class="display-2">${v}</div><div class="label">${l}</div></div>`).join("");
+    .map(([v, l]) => `<div class="card tile stat"><span class="ico-tint ${ti[l][0]}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ti[l][1]}</svg></span><div class="display-2">${v}</div><div class="label">${l}</div></div>`).join("");
 
   const ico = {
     rain: '<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/>',
@@ -122,16 +131,18 @@
     <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   $("alt-range").textContent = `${min} m → ${max} m`;
 
+  const photos = { road: "bavarian-morning", valley: "kochelsee", pass: "kesselberg" };
   $("sections").innerHTML = D.sections.map(s => `
     <div class="list-row">
-      <span class="ico">${svg(ico[s.icon], 18)}</span>
+      <img class="thumb" src="../assets/routes/${photos[s.icon]}.png" alt="">
       <div class="t"><p class="body-strong">${s.kind}</p><p class="caption">${s.name}</p></div>
       <span class="end">${s.time} · ${s.km}</span>
     </div>`).join("");
 
+  const pc = { fuel: "warning", coffee: "positive", eye: "weather" };
   $("points").innerHTML = D.points.map(p => `
     <div class="list-row">
-      <span class="ico">${svg(ico[p.icon], 18)}</span>
+      <span class="ico-tint ${pc[p.icon]}" style="width:36px;height:36px;border-radius:10px">${svg(ico[p.icon], 18)}</span>
       <div class="t"><p class="body-strong">${p.name}</p><p class="caption">${p.sub}</p></div>
     </div>`).join("");
 

@@ -36,7 +36,8 @@
     .post .who .caption b { font-weight: 500; color: var(--text-1); }
     .post .stats { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
     .post .stats .caption { color: var(--text-2); display: flex; align-items: center; gap: 4px; }
-    .post .stats .caption svg { color: var(--text-1); }
+    .post .stats .caption svg { color: var(--star); }
+    .post .ph .tags { position: absolute; left: 16px; top: 14px; display: flex; gap: 6px; }
     .post .btn-tertiary { font-size: 14px; }
 
     .section { padding: 24px var(--gutter) 0; }
@@ -48,6 +49,7 @@
     .mini .txt { position: absolute; left: 12px; right: 12px; bottom: 12px; }
     .mini .name { font-size: 15px; font-weight: 600; margin: 0 0 3px; color: var(--text-1); }
     .mini .caption { font-size: 12px; }
+    .mini .tags { position: absolute; left: 12px; top: 12px; }
 
     /* Heat map : couvre la zone de contenu, sous le header, au-dessus de la tab bar */
     #heatmap { position: absolute; left: 0; right: 0; top: 108px; bottom: 84px; z-index: 5; background: var(--bg); display: none; }
@@ -103,6 +105,7 @@
       <a class="ph" href="09-segment.html">
         <img class="ph-img" src="../assets/routes/${s.photo}.png" alt="">
         <span class="overlay"></span>
+        <span class="tags">${s.tags.map(tagHtml).join("")}</span>
         ${s.sub ? `<span class="sub">${s.sub}</span>` : ""}
         <p class="title-2">${s.name}</p>
       </a>
@@ -121,6 +124,7 @@
   document.getElementById("dream").innerHTML = RIDE.dreamRides.map(d => `
     <a class="card-photo mini" href="09-segment.html">
       <span class="ph"><img src="../assets/routes/${d.photo}.png" alt="" style="height:200px"><span class="overlay"></span></span>
+      <span class="tags"><span class="tag weather">${d.country}</span></span>
       <span class="txt"><p class="name">${d.name}</p><span class="caption">${d.sub}</span></span>
     </a>`).join("");
 

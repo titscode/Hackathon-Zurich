@@ -47,7 +47,11 @@
     .day .chips { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .day .info { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
     .day .info .caption { display: flex; align-items: center; gap: 6px; margin: 0; }
-    .day .info svg { color: var(--text-3); flex: none; }
+    .day .info svg { flex: none; }
+    .day .info .sun { color: var(--warning); }  .day .info .thermo { color: var(--weather); }
+    .day .info .bed, .day .info .home { color: var(--text-3); }
+    .day .seg .meta svg { color: var(--star); }
+    .alt .t .caption svg { color: var(--star); }
     .day .segs { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
     .day .seg { background: var(--surface-2); }
     .day .seg .meta { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -158,7 +162,9 @@
     bed: '<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>',
     home: '<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
   };
-  const svg = d => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const svg = (d, cls = "") => `<svg class="${cls}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  /* Un col porte la couleur de son caractère (tags du segment), alpin par défaut */
+  const passTag = p => { const s = segByName(p); return `<span class="tag ${s && s.tags ? tagColor(s.tags[0]) : "weather"}">${p}</span>`; };
   const segRow = s => `
     <div class="seg">
       <img class="avatar" src="../assets/avatars/${s.avatar}.png" alt="">
@@ -173,10 +179,10 @@
         <div><div class="display-2">${d.time}</div><div class="label">Riding</div></div>
         <div><div class="display-2">${d.start}</div><div class="label">Leave</div></div>
       </div>
-      <div class="chips">${d.passes.map(p => `<span class="chip">${p}</span>`).join("")}</div>
+      <div class="chips">${d.passes.map(passTag).join("")}</div>
       <div class="info">
-        <p class="caption">${svg(d.n === 2 ? ico.thermo : ico.sun)}${d.weather}</p>
-        <p class="caption">${svg(d.stay === "Home" ? ico.home : ico.bed)}${d.stay}</p>
+        <p class="caption">${d.n === 2 ? svg(ico.thermo, "thermo") : svg(ico.sun, "sun")}${d.weather}</p>
+        <p class="caption">${d.stay === "Home" ? svg(ico.home, "home") : svg(ico.bed, "bed")}${d.stay}</p>
       </div>
       <div class="segs">${d.segments.map(n => segRow(segByName(n))).join("")}</div>
     </article>`).join("");
