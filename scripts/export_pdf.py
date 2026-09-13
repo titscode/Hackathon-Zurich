@@ -6,6 +6,7 @@ une page entiere sur toute la largeur, avec sous chaque maquette le numero de fe
     python scripts/export_pdf.py               # regenere les PNG (shot.py) puis docs/RIDE-mockups.pdf
     python scripts/export_pdf.py --no-shots    # utilise les PNG deja dans out/
     python scripts/export_pdf.py -o autre.pdf
+    python scripts/export_pdf.py --only tft --no-cover -o docs/RIDE-TFT.pdf   # les 5 ecrans moto seuls, a la suite
 
 Aucune dependance nouvelle : le PDF est imprime par Chromium (Playwright page.pdf), texte vectoriel, Inter vendorisee.
 """
@@ -129,6 +130,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("-o", "--out", default=str(DOCS / "RIDE-mockups.pdf"))
     ap.add_argument("--no-shots", action="store_true", help="ne pas regenerer les PNG de out/")
+    ap.add_argument("--only", choices=["tft", "phone"], help="ne garder que les ecrans moto (tft) ou telephone (phone)")
+    ap.add_argument("--no-cover", action="store_true", help="sans page de garde")
     args = ap.parse_args()
     try:
         from playwright.sync_api import sync_playwright
@@ -142,6 +145,8 @@ def main() -> None:
         page.add_script_tag(path=str(ROOT / "screens" / "features.js"))
         seq = page.evaluate("RIDE_SEQUENCE")
         feats = page.evaluate("RIDE_FEATURES")
+        if args.only:
+            seq = [e for e in seq if bool(e.get("tft")) == (args.only == "tft")]
 
         if not args.no_shots:
             OUT.mkdir(exist_ok=True)
@@ -159,7 +164,7 @@ def main() -> None:
                f"<link rel='stylesheet' href='{(ROOT / 'design-system' / 'fonts' / 'inter.css').as_uri()}'>"
                f"<link rel='stylesheet' href='{(ROOT / 'design-system' / 'iphone.css').as_uri()}'>"
                f"<style>{CSS}</style></head><body>"
-               + cover_html(seq, feats, n)
+               + ("" if args.no_cover else cover_html(seq, feats, n))
                + "".join(page_html(entries, i + 1, n) for i, entries in enumerate(pages))
                + "</body></html>")
         tmp = Path(tempfile.gettempdir()) / "ride-mockups.html"
@@ -172,7 +177,7 @@ def main() -> None:
         pdf.pdf(path=args.out, format="A4", landscape=True, print_background=True, prefer_css_page_size=True)
         browser.close()
     size = Path(args.out).stat().st_size // 1024
-    print(f"{args.out} : {n + 1} pages (garde + {n}), {len(seq)} maquettes, {size} Ko")
+    print(f"{args.out} : {n + (0 if args.no_cover else 1)} pages{'' if args.no_cover else ' (garde + ' + str(n) + ')'}, {len(seq)} maquettes, {size} Ko")
 
 
 if __name__ == "__main__":
