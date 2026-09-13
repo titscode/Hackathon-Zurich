@@ -83,6 +83,9 @@ def shoot(page, name: str, full_page: bool) -> Path:
     missing = []
     on_failed = lambda r: TILE_PAT.search(r.url) and missing.append(r.url)
     page.on("requestfailed", on_failed)
+    # Deux etats du meme ecran ne different que par le hash : sans passage par about:blank, Chrome ne
+    # recharge pas le document et le script de l'ecran ne relit pas location.hash.
+    page.goto("about:blank")
     page.goto(src.as_uri() + (f"#{state}" if state else ""), wait_until="networkidle")
     # Tailwind s'injecte apres le parse: laisser un tick de plus.
     page.wait_for_timeout(400)
