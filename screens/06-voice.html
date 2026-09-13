@@ -13,15 +13,19 @@
       display: grid; place-items: center; color: var(--text-2); z-index: 5;
     }
 
-    /* Orbe vocal — DESIGN.md §6 : 120 px, blanc à 90 %, pulsation 1 → 1.06 quand le compagnon parle,
-       bordure accent quand l'utilisateur parle. Pas de glow, pas de particules. */
+    /* Orbe vocal — DESIGN.md §6 : 120 px, blanc à 90 % avec du volume (dégradé radial subtil, anneau 1 px,
+       halo blanc doux), pulsation 1 → 1.06 quand le compagnon parle, bordure accent quand l'utilisateur parle.
+       Jamais de glow coloré, pas de particules. */
     .orb-wrap { flex: none; text-align: center; padding: 8px 0 0; }
     .orb-wrap .label { margin: 0 0 14px; }
     .orb {
-      width: 120px; height: 120px; border-radius: 50%; margin: 0 auto;
-      background: rgba(244, 245, 247, 0.9); border: 3px solid transparent; box-sizing: border-box;
-      transition: border-color 200ms var(--ease);
+      width: 120px; height: 120px; border-radius: 50%; margin: 0 auto; position: relative;
+      background: radial-gradient(circle at 36% 30%, #FFFFFF 0%, #EEF0F3 38%, #D9DCE1 70%, #C3C7CE 100%);
+      border: 3px solid transparent; box-sizing: border-box;
+      box-shadow: 0 0 0 1px rgba(244, 245, 247, 0.35), 0 0 40px rgba(244, 245, 247, 0.10), inset 0 -10px 24px rgba(10, 11, 13, 0.10);
+      transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
     }
+    .orb.listen { box-shadow: 0 0 0 1px rgba(28, 105, 212, 0.35), 0 0 40px rgba(244, 245, 247, 0.10), inset 0 -10px 24px rgba(10, 11, 13, 0.10); }
     .orb.speak  { animation: pulse 1.6s var(--ease) infinite alternate; }
     .orb.listen { border-color: var(--accent); }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
