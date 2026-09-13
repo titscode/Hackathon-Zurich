@@ -91,6 +91,7 @@ Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l
 ```bash
 python scripts/export_pdf.py               # re-capture la sélection de features.js (RIDE_SEQUENCE), puis docs/RIDE-mockups.pdf
 python scripts/shot_gallery.py             # docs/gallery-*.png (index.html en 1440×900 @2x)
+python scripts/export_html.py              # dist/RIDE-maquettes-html/ + .zip : dossier autonome à envoyer (écrans, data, tokens, carte, photos)
 ```
 Contrôle visuel du PDF (poppler absent sous Windows) : `pip install pypdfium2` puis rasteriser les pages avec
 `pypdfium2.PdfDocument(...)[i].render(scale=1.6).to_pil()` ; ce n'est pas un prérequis du repo.
