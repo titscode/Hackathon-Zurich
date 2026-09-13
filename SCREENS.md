@@ -54,11 +54,13 @@ Trois états : défaut = navigation ; `#feedback` = la card feedback est affich�
 
 Cinq écrans 1920 × 720 (`screens/tft-0N-*.html`, artboard `.tft.page`, capturés en 3840 × 1440), complémentaires de l'app, pilotés au Multi-Controller (molette + pression) et à la voix. Règles dans DESIGN.md §5.
 
-**tft-01-briefing.html** : contact mis, app synchronisée. Route du jour (Munich → Garmisch · Most fun, 148 km · 2 h 20 · 858 m) avec profil d'altitude et segments marqués, alerte « Leave before 12:30 », 3 segments communautaires de la route, état de la moto (78 %, 312 km, tyres OK), météo horaire, bouton focus « Start ride ».
-**tft-02-navigation.html** : en roulant. Flèche 220 px, 400 m, rue, corridor de route avec les segments à venir (« Kesselberg in 2.1 km · 9 hairpins · 4.9 »), vitesse 62 km/h, limite 80, météo à venir, autonomie.
-**tft-03-segment.html** : dans le Kesselberg. Épingle 4 sur 9 à 120 m, profil du segment avec position, conseil de Marco_K, avertissement gravier, progression 1.8 / 4.2 km, vitesse.
-**tft-04-alert.html** : décision du companion. Pluie près du Kesselberg dans 20 min, alternative Kochelsee Uferstraße (+10 min), deux boutons « Keep Kesselberg » (focus) / « Switch to Kochelsee », vitesse toujours visible.
-**tft-05-recap.html** : contact coupé. Bilan (148 km, 2 h 34, 3 passes, 8.6), segments notés, ce que le companion a appris, « Sent to your phone ».
+Une idée par écran, trois zones fixes, aucune boîte imbriquée (DESIGN.md §5).
+
+**tft-01-briefing.html** · la route et l'heure de départ : « Munich → Garmisch », « Most fun · 148 km · 2 h 20 · summit 858 m », grand profil d'altitude avec les 3 segments nommés et notés dessus, une ligne « Leave before 12:30 · light rain near Kesselberg after 15:00 » ; à droite la moto en trois lignes (fuel 78 %, range 312 km, tyres and oil OK) et la météo en une caption ; « Start ride » au focus.
+**tft-02-navigation.html** · le prochain virage : flèche 220 px, « 400 m », rue, « Then keep left », une ligne « Kesselberg in 2.1 km · 4.9 · 9 hairpins » avec l'avatar de Marco_K ; à droite vitesse 62 + limite 80, puis 14 °C in 20 min et 312 km range.
+**tft-03-segment.html** · la prochaine épingle : « Hairpin 4 of 9 · Tight left · 120 m », « Kesselberg · 4.9 · Marco_K », profil du segment avec la position, une ligne de citation « Second gear, no rush. », une ligne d'avertissement gravier ; à droite vitesse 48 + limite, puis 1.8 of 4.2 km avec jauge.
+**tft-04-alert.html** · un choix : navigation en fond sous un voile, une card « Light rain near Kesselberg in 20 min · Kochelsee Uferstraße stays dry · +10 min · 4.2 » avec « Keep Kesselberg » (focus) et « Switch to Kochelsee » ; la vitesse reste visible à droite.
+**tft-05-recap.html** · la sortie est finie, note-la : « Munich → Garmisch », « Most fun · 2 h 34 on the road · no motorway », une ligne de 4 valeurs (148 km, 2 h 34, 3 passes, 8.6 curviness), trois segments à noter avec une pilule Loved it / Loved it / Good (la première au focus), « Sent to your phone ».
 
 ## 10 features (index.html et PDF)
 

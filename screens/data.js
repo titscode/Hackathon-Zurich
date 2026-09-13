@@ -259,15 +259,15 @@ const RIDE = {
   tft: {
     briefing: {
       bike: [["Fuel", "78 %", 78], ["Range", "312 km"], ["Tyres", "OK"], ["Oil", "OK"]],
-      routeSegments: ["Kochelsee Uferstraße", "Kesselberg", "Achenpass"],   /* dans l'ordre du parcours */
-      marks: [[0.55, "Kochelsee"], [0.62, "Kesselberg"], [0.74, "Achenpass"]],  /* position sur le profil */
+      /* segments nommés sur le profil d'altitude : position (0–1), segment, libellé court, couleur */
+      marks: [[0.36, "Achenpass", "Achenpass", "weather"], [0.48, "Kochelsee Uferstraße", "Kochelsee", "positive"], [0.60, "Kesselberg", "Kesselberg", "accent-bright"]],
       hourly: [["10:00", "18°", "sun"], ["12:00", "20°", "sun"], ["13:00", "20°", "cloud"], ["15:00", "17°", "rain"], ["17:00", "16°", "cloud"]],
     },
     corridor: { total: 148, pos: 0.59, blocks: [["Kochelsee Uferstraße", 0.55, 0.60, "positive"], ["Kesselberg", 0.61, 0.64, "accent"], ["Achenpass", 0.70, 0.78, "weather"]],
                 next: "Kesselberg", nextIn: "2.1 km", nextNote: "9 hairpins" },
     speedLimit: "80",
     segment: { name: "Kesselberg", hairpin: 4, hairpins: 9, next: "Tight left", dist: "120 m", done: 1.8, total: 4.2,
-               speed: "48", tip: "Second gear, no rush. The lake is behind you, look at the exit.",
+               speed: "48", tip: "Second gear, no rush.",
                warning: "Gravel after rain", warningSub: "Reported 14× this year" },
     alert: { title: "Light rain near Kesselberg in 20 min", body: "Kochelsee Uferstraße stays dry · +10 min",
              alt: "Kochelsee Uferstraße", keep: "Keep Kesselberg", switchTo: "Switch to Kochelsee", say: "switch" },
