@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Ride complete</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    .head { padding: 8px var(--gutter) 0; display: flex; align-items: center; justify-content: space-between; }
+    .head .label { margin: 0; }
+    .head .close { width: 36px; height: 36px; margin-right: -8px; display: grid; place-items: center; color: var(--text-2); }
+
+    .wrap { padding: 12px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Card photo avec tracé blanc en overlay */
+    .hero { height: 180px; display: block; }
+    .hero img { width: 100%; height: 100%; object-position: 50% 40%; }
+    .hero svg.trace { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero .txt { position: absolute; left: 16px; right: 16px; bottom: 14px; }
+    .hero .title-2 { margin: 0; color: var(--text-1); }
+    .hero .caption { color: var(--text-2); }
+
+    /* Grille 3×2 */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .grid .stat { padding: 10px 12px; }
+    .grid .display-2 { font-size: 22px; }
+
+    .rated .h { display: flex; justify-content: space-between; align-items: baseline; }
+    .rated .h .label { margin: 0 0 4px; }
+    .rated .list-row { padding: 8px 0; }
+    .rated .avatar { width: 28px; height: 28px; }
+    .rated .list-row:last-child { padding-bottom: 0; }
+    .rated .name { font-size: 15px; font-weight: 500; }
+    .rated .end { color: var(--positive); font-weight: 500; }
+    .rated .end svg { color: var(--positive); }
+
+    .learn { display: flex; align-items: flex-start; gap: 8px; padding: 0 4px; }
+    .learn svg { color: var(--text-3); flex: none; margin-top: 2px; }
+    .learn p { margin: 0; }
+    .learn .t3 { color: var(--text-3); }
+
+    .actions-bar { grid-template-columns: 1fr; }
+  </style>
+</head>
+<body>
+<div class="screen">
+  <div id="sb"></div>
+
+  <div class="scroll under-actions">
+    <header class="head">
+      <p class="label">Ride complete</p>
+      <a class="close" href="02-home.html" aria-label="Close">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </a>
+    </header>
+
+    <div class="wrap">
+      <div class="card-photo hero">
+        <span class="ph">
+          <img src="../assets/routes/kesselberg.png" alt="" style="height:180px">
+          <span class="overlay"></span>
+          <!-- tracé en coordonnées 0–100 mis à l'échelle du cadre (348×180) ; traits et points en pixels réels -->
+          <svg class="trace" viewBox="0 0 348 180" aria-hidden="true">
+            <g transform="scale(3.48,1.8)">
+              <path id="trace" fill="none" stroke="rgba(244,245,247,.18)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              <path id="trace2" fill="none" stroke="var(--text-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            </g>
+            <circle id="start" r="4" fill="var(--bg)" stroke="var(--text-1)" stroke-width="2"/>
+            <circle id="end" r="4" fill="var(--text-1)"/>
+          </svg>
+        </span>
+        <span class="txt"><p class="title-2" id="title"></p><span class="caption" id="when"></span></span>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <section class="card rated">
+        <div class="h"><p class="label">Segments you rated</p><span class="caption">3 of 3</span></div>
+        <div id="rated"></div>
+      </section>
+
+      <div class="learn caption">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4M22 5h-4M4 17v2M5 18H3"/></svg>
+        <p><span class="t3">Your companion learned:</span> <span id="learned"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <a class="btn btn-primary" href="12-profile.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+      Share this ride
+    </a>
+  </div>
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const R = RIDE.recap;
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("title").textContent = `${R.from} → ${R.to}`;
+  $("when").textContent = R.when;
+  $("trace").setAttribute("d", R.trace); $("trace2").setAttribute("d", R.trace);
+  const m = R.trace.match(/-?[\d.]+/g).map(Number), sx = 3.48, sy = 1.8;
+  $("start").setAttribute("cx", m[0] * sx); $("start").setAttribute("cy", m[1] * sy);
+  $("end").setAttribute("cx", m[m.length - 2] * sx); $("end").setAttribute("cy", m[m.length - 1] * sy);
+
+  $("grid").innerHTML = [[R.km, "Distance"], [R.time, "Riding"], [R.passes, "Passes"], [R.curv, "Curviness"], [R.alt, "Summit"], [R.motorway, "Motorway"]]
+    .map(([v, l]) => `<div class="card stat"><div class="display-2">${v}</div><div class="label">${l}</div></div>`).join("");
+
+  const up = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7a2 2 0 0 1-1.9 1.4H7V10l4.5-7.5A2 2 0 0 1 15 5.9z"/></svg>';
+  $("rated").innerHTML = R.rated.map(([n, v]) => { const s = segByName(n); return `
+    <div class="list-row">
+      <img class="avatar" src="../assets/avatars/${s.avatar}.png" alt="" >
+      <div class="t"><p class="name">${n}</p><p class="caption">${s.author} · ${s.km} · curv ${s.curv}</p></div>
+      <span class="end">${up}${v}</span>
+    </div>`; }).join("");
+  $("learned").textContent = R.learned;
+</script>
+</body>
+</html>
