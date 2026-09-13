@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RIDE — TFT · Before you ride</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Avant de partir (SCREENS.md tft-01) · une idée : la route et l'heure de départ. */
+    .route .tft-body { margin-top: 8px; }
+    .route svg { display: block; width: 100%; height: 220px; margin-top: 16px; }
+    .route .cities { display: flex; justify-content: space-between; margin-top: 8px; font-size: 24px; color: var(--text-3); }
+    .route .leave { margin-top: 16px; font-size: 32px; line-height: 1.35; color: var(--text-1); }
+    .route .leave svg { width: 36px; height: 36px; color: var(--weather); }
+    .route .leave span { color: var(--text-2); }
+
+    .bike .row { display: flex; align-items: center; justify-content: space-between; font-size: 32px; padding: 18px 0; }
+    .bike .row + .row { border-top: 1px solid var(--border); }
+    .bike .row:first-child { padding-top: 6px; }
+    .bike .row .v { display: flex; align-items: center; gap: 16px; font-weight: 500; }
+    .bike .row .v .tft-gauge { width: 132px; }
+    .bike .row .ok { color: var(--positive); display: flex; align-items: center; gap: 8px; }
+    .bike .tft-cap { margin-top: 24px; }
+  </style>
+</head>
+<body>
+<div class="tft page">
+  <div class="tft-top"><span><b>RIDE</b> · Ready to ride, Tim</span><span id="sync"></span></div>
+
+  <div class="tft-main brief">
+    <div class="route">
+      <div class="tft-hero">Munich → Garmisch</div>
+      <div class="tft-body" id="sub"></div>
+      <svg id="profile" aria-hidden="true"></svg>
+      <div class="cities"><span>Munich</span><span>Bad Tölz</span><span>Walchensee</span><span>Garmisch</span></div>
+      <div class="tft-line leave">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/></svg>
+        <div id="leave"></div>
+      </div>
+    </div>
+
+    <div class="col-r bike">
+      <div id="bike"></div>
+      <div class="tft-cap" id="wx"></div>
+    </div>
+  </div>
+
+  <div class="tft-bottom">
+    <span class="tft-btn focus">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4.5 20.3 12 17l7.5 3.3z"/></svg>
+      Start ride
+    </span>
+    <span class="tft-hint">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3"/></svg>
+      Press the wheel to start · or say “let's go”
+    </span>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const D = RIDE.detail, R = RIDE.routes[D.route], T = RIDE.tft.briefing, W = RIDE.weather, U = RIDE.user;
+  $("sync").textContent = `${U.bike} · synced with your phone`;
+  $("sub").textContent = `Most fun · ${R.km} · ${R.time} · summit ${D.maxAlt}`;
+  $("leave").innerHTML = `<b style="font-weight:600">Leave before 12:30.</b> <span>Light rain near Kesselberg after 15:00.</span>`;
+
+  /* Profil d'altitude à la taille réelle du SVG (pas de mise à l'échelle : les libellés restent nets) */
+  const svg = $("profile"), Wd = svg.clientWidth, H = 220, padT = 100, padB = 8;
+  svg.setAttribute("viewBox", `0 0 ${Wd} ${H}`);
+  const P = D.profile, min = Math.min(...P), max = Math.max(...P);
+  const pts = P.map((v, i) => [i / (P.length - 1) * Wd, padT + (1 - (v - min) / (max - min)) * (H - padT - padB)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const yAt = x => { const i = Math.min(P.length - 2, Math.floor(x * (P.length - 1))), f = x * (P.length - 1) - i; return pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f; };
+  svg.innerHTML = `<path d="${d} L${Wd},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="2.5" stroke-linejoin="round"/>` +
+    T.marks.map(([x, name, short, col]) => { const s = segByName(name), cx = x * Wd, cy = yAt(x); return `
+      <line x1="${cx}" y1="${cy - 12}" x2="${cx}" y2="${cy - 36}" stroke="var(--border-strong)" stroke-width="2"/>
+      <circle cx="${cx}" cy="${cy}" r="9" fill="var(--${col})" stroke="var(--bg)" stroke-width="4"/>
+      <text x="${cx}" y="${cy - 74}" text-anchor="middle" font-size="24" font-weight="500" fill="var(--text-1)">${short}</text>
+      <text x="${cx}" y="${cy - 46}" text-anchor="middle" font-size="24" fill="var(--text-2)"><tspan fill="var(--star)">★</tspan> ${s.rating}</text>`; }).join("");
+
+  const ok = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  $("bike").innerHTML = `
+    <div class="row"><span>Fuel</span><span class="v"><span class="tft-gauge"><i class="positive" style="width:${U.fuel}%"></i></span>${U.fuel} %</span></div>
+    <div class="row"><span>Range</span><span class="v">${U.range} km</span></div>
+    <div class="row"><span>Tyres, oil</span><span class="v ok">${ok}OK</span></div>`;
+  $("wx").textContent = `${W.temp} ${W.cond.toLowerCase()} · ${W.note.toLowerCase()}`;
+</script>
+</body>
+</html>

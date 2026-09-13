@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Splash (SCREENS.md 01) : logo, tagline, tracé blanc qui se dessine, connexion à la moto, puis 02 après 2 s.
+       #connected : image finale figée, sans animation ni redirection. */
+    .screen.splash { display: flex; flex-direction: column; align-items: center; }
+    /* Photo 9:16 plein écran sous un voile bg 55 → 88 %, légèrement teinté (DESIGN.md §3) */
+    .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: saturate(0.85) contrast(1.05); }
+    .veil { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,11,13,.55), rgba(14,18,26,.72) 45%, rgba(10,11,13,.92)); }
+    .screen.splash > :not(.bg):not(.veil) { position: relative; z-index: 1; }
+    .logo { margin-top: 170px; text-align: center; }
+    .logo .display { letter-spacing: 0.02em; font-size: 34px; }
+    .logo .label { margin-top: 6px; color: var(--text-2); }
+    .tagline { margin: 12px 0 0; color: var(--text-2); }
+
+    .road { margin-top: 40px; width: 260px; height: 160px; display: block; }
+    .road path { fill: none; stroke: var(--text-1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+                 stroke-dasharray: var(--len, 700); stroke-dashoffset: var(--len, 700); }
+    .road .dot { fill: var(--text-1); stroke: var(--bg); stroke-width: 2; opacity: 0; }
+    .road .halo { fill: rgba(28, 105, 212, 0.35); opacity: 0; }
+    .screen.play .road path { animation: draw 1.4s var(--ease) forwards; }
+    .screen.play .road .dot, .screen.play .road .halo { animation: show 200ms var(--ease) 1.4s forwards; }
+    .screen.connected .road path { stroke-dashoffset: 0; }
+    .screen.connected .road .dot, .screen.connected .road .halo { opacity: 1; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes show { to { opacity: 1; } }
+
+    .conn { margin-top: auto; margin-bottom: 64px; display: flex; align-items: center; gap: 8px; opacity: 0; transition: opacity 200ms var(--ease); }
+    .conn.on { opacity: 1; }
+    .conn { color: var(--text-1); }
+    .conn .check { width: 22px; height: 22px; border-radius: 50%; background: var(--positive-soft); border: 1.5px solid var(--positive); color: var(--positive); display: grid; place-items: center; }
+  </style>
+</head>
+<body>
+<div class="screen splash" id="screen">
+  <img class="bg" src="../assets/routes/alpine-pass-tall.png" alt="">
+  <span class="veil"></span>
+  <div id="sb" style="align-self:stretch"></div>
+
+  <div class="logo">
+    <div class="display">RIDE</div>
+    <p class="label">by BMW Motorrad</p>
+  </div>
+  <p class="body tagline">Find your best road</p>
+
+  <svg class="road" viewBox="0 0 260 160" aria-hidden="true">
+    <path id="path" d="M14 146 C50 146 70 140 96 128 S150 118 150 104 S96 92 92 78 S130 60 172 56 S236 52 236 40 S196 28 190 22 S214 12 246 12"/>
+    <circle class="halo" cx="246" cy="12" r="14"/><circle class="dot" cx="246" cy="12" r="6"/>
+  </svg>
+
+  <p class="caption conn" id="conn">
+    <span class="check" id="check">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </span>
+    <span id="conn-txt"></span>
+  </p>
+
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("conn-txt").textContent = `Connected to your ${RIDE.user.bike}`;
+  const screen = $("screen"), conn = $("conn");
+  const len = $("path").getTotalLength();
+  $("path").style.setProperty("--len", len.toFixed(1));
+  if (location.hash === "#connected") {
+    screen.classList.add("connected");
+    conn.classList.add("on");
+  } else {
+    screen.classList.add("play");
+    $("conn-txt").textContent = `Connecting to your ${RIDE.user.bike}`;
+    $("check").style.visibility = "hidden";
+    setTimeout(() => conn.classList.add("on"), 400);
+    setTimeout(() => { $("conn-txt").textContent = `Connected to your ${RIDE.user.bike}`; $("check").style.visibility = ""; }, 1500);
+    setTimeout(() => location.replace("02-home.html"), 2200);
+  }
+</script>
+</body>
+</html>

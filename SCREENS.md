@@ -22,7 +22,7 @@ Contexte : prototype de hackathon, mockups mobiles 390×844 en HTML statique aut
 
 ## Écrans (fichier, contenu, lien sortant)
 
-**01-splash.html** : logo RIDE en Inter 600 34 px, « Find your best road », tracé blanc qui se dessine sur fond `bg`, puis « Connecting to your R 1300 GS » avec check `positive`. Lien auto vers 02 après 2 s.
+**01-splash.html** : logo RIDE en Inter 600 34 px, « Find your best road », tracé blanc qui se dessine sur fond `bg`, puis « Connecting to your R 1300 GS » avec check `positive`. Lien auto vers 02 après 2 s. État `#connected` : image finale figée (tracé dessiné, check affiché, pas de redirection) pour `shot.py` et le PDF.
 
 **02-home.html** : « Ready to ride, Tim? » (`title-1`), ligne météo compacte en `caption`, pastille « R 1300 GS · 78 % · 312 km ». Deux cards photo empilées, hauteur 168 px chacune : « Go somewhere » (photo route de campagne bavaroise au petit matin) et « Plan a trip » (photo col alpin). Titre `title-2` sur overlay, sous-titre `caption`. Puis section `label` « Near you this weekend » avec 2 cards photo horizontales (Kesselberg, Sudelfeld) 160×200. Tab bar. Liens : 03, 06, 08, 12.
 
@@ -42,11 +42,42 @@ Contexte : prototype de hackathon, mockups mobiles 390×844 en HTML statique aut
 
 **10-ride-mode.html** : fond `bg`, flèche de manœuvre Lucide 96 px en `text-1`, « 400 m » en `display`, « Turn right onto Kesselbergstraße » en `title-2`, ligne basse : 62 km/h, 14 °C in 20 min, 312 km range. Rien en accent sauf rien. Toggle « Bike display » en haut à droite qui affiche la version paysage dans un cadre TFT 10,25". Après 3 s, card feedback « How was Kesselberg? » avec deux boutons secondaires larges (thumbs up, thumbs down) et `caption` « Say "loved it" or "skip" ». Lien : 11.
 
+Trois états : défaut = navigation ; `#feedback` = la card feedback est affichée ; `#bike` = **artboard séparé 1920×720** (ratio du TFT 10,25"), sans aucun chrome téléphone (ni status bar, ni tab bar), même contenu en paysage : flèche à gauche, distance et rue au centre, vitesse / météo / autonomie à droite. Galerie et PDF le montrent seul, coins 16 px, avec la légende « As shown on the bike's 10.25" TFT ». Dans le portrait, le toggle « Bike display » reste visible en haut à droite mais n'ouvre rien dans la capture.
+
 **11-recap.html** : « Ride complete » `label`, card photo (photo route Kesselberg) avec tracé blanc en overlay et « Munich → Garmisch » `title-2`, grille 3×2 de stats (148 km, 2 h 34, 3 passes, 8.6 avg curviness, 858 m max altitude, 0 motorway km), liste « Segments you rated » (Kesselberg Loved it, Kochelsee Loved it, Achenpass Good) en `positive`, ligne « Your companion learned: you loved Kesselberg, avoided the A95 », bouton primaire « Share this ride ».
 
 **12-profile.html** : avatar 72 px, « Tim », « BMW R 1300 GS », 3 chiffres (42 rides, 6 830 km, 11 passes), badges en chips (Bavarian Explorer, Early Bird, Twisty Hunter), section « What your companion knows » avec les 6 préférences en liste et icône edit, section « Your bike » (78 %, 312 km, tyres OK, last ride 2 days ago), réglages (Units, Language, Companion voice).
 
-**index.html** : panneau de démo hors téléphone, fond `bg`, colonne gauche 320 px : logo, titre, 10 features numérotées en cards `surface-1` (label + caption), chacune ouvrant l'écran cible dans l'iframe 390×844 à droite, cadre smartphone en `surface-2` avec bordure `border-strong` et rayon 44.
+**index.html** (racine du repo, servi par GitHub Pages) : panneau de démo hors téléphone, fond `bg`, colonne gauche 320 px : logo, titre, 10 features numérotées en cards `surface-1` (label + caption), chacune ouvrant l'écran cible dans l'iframe 390×844 à droite, sans boîtier de téléphone : l'écran seul, coins 46 px, liseré 1 px et ombre douce (`design-system/iphone.css` `.shot`). Navigation clavier ← / → entre écrans et états. L'état `10#bike` montre l'artboard TFT 1920×720 réduit, aux coins 16 px.
+
+## Écrans TFT moto (On the bike)
+
+Cinq écrans 1920 × 720 (`screens/tft-0N-*.html`, artboard `.tft.page`, capturés en 3840 × 1440), complémentaires de l'app, pilotés au Multi-Controller (molette + pression) et à la voix. Règles dans DESIGN.md §5.
+
+Une idée par écran, trois zones fixes, aucune boîte imbriquée (DESIGN.md §5).
+
+**tft-01-briefing.html** · la route et l'heure de départ : « Munich → Garmisch », « Most fun · 148 km · 2 h 20 · summit 858 m », grand profil d'altitude avec les 3 segments nommés et notés dessus, une ligne « Leave before 12:30 · light rain near Kesselberg after 15:00 » ; à droite la moto en trois lignes (fuel 78 %, range 312 km, tyres and oil OK) et la météo en une caption ; « Start ride » au focus.
+**tft-02-navigation.html** · le prochain virage : flèche 220 px, « 400 m », rue, « Then keep left », une ligne « Kesselberg in 2.1 km · 4.9 · 9 hairpins » avec l'avatar de Marco_K ; à droite vitesse 62 + limite 80, puis 14 °C in 20 min et 312 km range.
+**tft-03-segment.html** · la prochaine épingle : « Hairpin 4 of 9 · Tight left · 120 m », « Kesselberg · 4.9 · Marco_K », profil du segment avec la position, une ligne de citation « Second gear, no rush. », une ligne d'avertissement gravier ; à droite vitesse 48 + limite, puis 1.8 of 4.2 km avec jauge.
+**tft-04-alert.html** · un choix : navigation en fond sous un voile, une card « Light rain near Kesselberg in 20 min · Kochelsee Uferstraße stays dry · +10 min · 4.2 » avec « Keep Kesselberg » (focus) et « Switch to Kochelsee » ; la vitesse reste visible à droite.
+**tft-05-recap.html** · la sortie est finie, note-la : « Munich → Garmisch », « Most fun · 2 h 34 on the road · no motorway », une ligne de 4 valeurs (148 km, 2 h 34, 3 passes, 8.6 curviness), trois segments à noter avec une pilule Loved it / Loved it / Good (la première au focus), « Sent to your phone ».
+
+## 10 features (index.html et PDF)
+
+Source unique : `screens/features.js` (`RIDE_FEATURES`, `RIDE_SEQUENCE`). Chaque feature ouvre son premier écran cible dans la galerie ; les flèches ← / → parcourent la sélection.
+
+Sélection de consultation (galerie et PDF, 13 sept. 2026) : 03 Destination, 04 Route, 06 Companion (conversation et trip ready), 07 Alpine Loop (swap), 08 Explore, 09 Segment, 11 Ride complete, 12 Profile. Les autres écrans (01, 02, 05, 07 défaut, 08 heat, 10 et ses états) restent dans `screens/` et dans `out/`.
+
+1. Two ways to ride: Go somewhere or Plan a trip → 02
+2. Fast ↔ Fun slider that reshapes your route live → 04
+3. Weather-aware routing with departure advice → 04, 05
+4. Voice trip planner, a five-minute conversation → 06
+5. A companion that learns your riding preferences → 06, 12
+6. Multi-day trip generation with swappable segments → 07, 07#swap
+7. Community segments rated by real riders → 08, 08#heat
+8. Follow a rider's segment instead of trusting an AI blindly → 09
+9. Ride mode and bike display, glove-friendly → 10, 10#bike
+10. In-ride feedback and ride recap that make the whole community smarter → 10#feedback, 11
 
 ## Ordre de construction
 

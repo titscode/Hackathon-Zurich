@@ -7,6 +7,7 @@
 """
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -16,6 +17,8 @@ OUT = ROOT / "out"
 
 WIDTH, HEIGHT = 390, 844
 SCALE = 2
+# Tuiles de carte servies hors-ligne (voir scripts/cache_tiles.py) : une tuile absente = PNG a trous.
+TILE_PAT = re.compile(r"/design-system/tiles/[a-z0-9-]+/\d+/\d+/\d+\.png")
 
 
 def chromium_path():
@@ -57,6 +60,19 @@ def assert_styled(page, name: str) -> None:
         )
 
 
+def artboard_size(page):
+    """[largeur, hauteur] CSS du premier artboard visible (.screen ou .tft), None si aucun."""
+    return page.evaluate(
+        """() => {
+            for (const el of document.querySelectorAll('.screen, .tft')) {
+                const r = el.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) return [Math.round(r.width), Math.round(r.height)];
+            }
+            return null;
+        }"""
+    )
+
+
 def shoot(page, name: str, full_page: bool) -> Path:
     # "08-explore#heat" capture l'etat #heat de l'ecran dans out/08-explore-heat.png
     name, _, state = name.partition("#")
@@ -64,12 +80,30 @@ def shoot(page, name: str, full_page: bool) -> Path:
     if not src.exists():
         sys.exit(f"erreur: {src} introuvable")
     dst = OUT / (f"{name}-{state}.png" if state else f"{name}.png")
+    missing = []
+    on_failed = lambda r: TILE_PAT.search(r.url) and missing.append(r.url)
+    page.on("requestfailed", on_failed)
+    # Deux etats du meme ecran ne different que par le hash : sans passage par about:blank, Chrome ne
+    # recharge pas le document et le script de l'ecran ne relit pas location.hash.
+    page.goto("about:blank")
     page.goto(src.as_uri() + (f"#{state}" if state else ""), wait_until="networkidle")
     # Tailwind s'injecte apres le parse: laisser un tick de plus.
     page.wait_for_timeout(400)
     assert_styled(page, name)
+    # Artboard d'une autre taille que le telephone (ex. 10-ride-mode#bike : TFT 1920x720) :
+    # le viewport suit l'artboard visible, puis revient a 390x844 pour l'ecran suivant.
+    size = artboard_size(page)
+    if size and size != [WIDTH, HEIGHT]:
+        page.set_viewport_size({"width": size[0], "height": size[1]})
+        page.wait_for_timeout(200)
     page.screenshot(path=str(dst), full_page=full_page)
+    if size and size != [WIDTH, HEIGHT]:
+        page.set_viewport_size({"width": WIDTH, "height": HEIGHT})
+    page.remove_listener("requestfailed", on_failed)
     print(f"{src.relative_to(ROOT)}{'#' + state if state else ''} -> {dst.relative_to(ROOT)}")
+    if missing:
+        print(f"  ATTENTION: {len(missing)} tuile(s) de carte manquante(s), le PNG a des trous."
+              f" Lance : python scripts/cache_tiles.py \"{name}{'#' + state if state else ''}\"")
     return dst
 
 

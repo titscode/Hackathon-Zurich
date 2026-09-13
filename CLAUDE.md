@@ -12,7 +12,9 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
 | `out/` | PNG exportés par Playwright (`out/home.png`) |
 | `assets/` | Images générées (illustrations, photos, textures) — jamais de stock externe |
 | `design-system/` | `tailwind.js` (vendorisé) + `tokens.md` : palette, typo, composants |
-| `scripts/` | Outils : screenshot, génération d'image, setup Windows |
+| `scripts/` | Outils : screenshot (`shot.py`), PDF (`export_pdf.py`), captures galerie (`shot_gallery.py`), génération d'image, tuiles, setup Windows |
+| `index.html` | Galerie de démo à la racine (GitHub Pages) : 10 features (`screens/features.js`), cadre écran seul (`design-system/iphone.css`) |
+| `docs/` | `RIDE-mockups.pdf` (une page par écran et par état) et captures de la galerie |
 
 ## Règles de production d'un écran
 
@@ -23,9 +25,19 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
    réseau ou un proxy bloque une ressource, la page rend sans style et le PNG est faux sans la
    moindre erreur. Tailwind reste disponible en local (`../design-system/tailwind.js`) mais les
    écrans RIDE n'en ont pas besoin.
-   Carte : Leaflet vendorisé (`../design-system/leaflet/`) + tuiles OSM mises en cache dans
-   `design-system/tiles/` et assombries par filtre CSS (CartoDB Dark Matter exige une clé API).
-   Après tout changement de zoom ou de zone : `python scripts/cache_tiles.py <ecran>[#etat]`.
+   Carte : Leaflet vendorisé (`../design-system/leaflet/`) + tuiles en cache local dans
+   `design-system/tiles/<fournisseur>/{z}/{x}/{y}.png`, servies hors-ligne. Le fournisseur est choisi par
+   `scripts/cache_tiles.py` et publié dans `design-system/tiles/source.js` (commité, sans clé) :
+   MapTiler `dataviz-dark` si la variable d'environnement `MAPTILER_KEY` existe (`setx MAPTILER_KEY "..."`
+   puis rouvrir le terminal ; jamais de clé dans un fichier du repo), sinon OSM avec labels gommés par
+   Pillow (`tiles/_raw/osm` brut → `tiles/osm` servi) et assombri par le filtre CSS `.map-osm`.
+   Dans un écran : `<script src="../design-system/leaflet/leaflet.js">`, puis `../design-system/tiles/source.js`,
+   puis `data.js` ; la carte s'obtient avec `rideTileLayer(map)` et se cadre avec `rideFitBounds(map, bounds,
+   { paddingTopLeft, paddingBottomRight })` dans un `<div class="map-slot">` (zoom entier + scale CSS + tuiles
+   recopiées sur un canvas : aucune couture, aucun flou ; `zoomSnap: 1` obligatoire). Épaisseur visuelle des
+   polylines via l'option `vw`, marqueurs et étiquettes en `.keep-size`.
+   Après tout changement de zoom ou de zone : `python scripts/cache_tiles.py <ecran>[#etat]`
+   (`--reprocess` regénère `tiles/osm` après un changement de l'algorithme de gommage).
 2. **Viewport 390 × 844** (iPhone 14/15). Le contenu vit dans un conteneur de cette taille exacte :
    ```html
    <meta name="viewport" content="width=390, initial-scale=1">
@@ -73,7 +85,17 @@ python scripts/shot.py 04-route --full-page
 python scripts/shot.py --all
 ```
 Un écran peut exposer des états via `location.hash` (`#heat`, `#fun`…) : un PNG par état.
-Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina).
+Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l'artboard visible n'est pas
+`.screen` mais `.tft` (1920×720 : `10-ride-mode#bike` et les écrans du TFT moto `screens/tft-0N-*.html`), le viewport
+suit sa taille (PNG 3840×1440).
+
+```bash
+python scripts/export_pdf.py               # re-capture la sélection de features.js (RIDE_SEQUENCE), puis docs/RIDE-mockups.pdf
+python scripts/shot_gallery.py             # docs/gallery-*.png (index.html en 1440×900 @2x)
+python scripts/export_html.py              # dist/RIDE-maquettes-html/ + .zip : dossier autonome à envoyer (écrans, data, tokens, carte, photos)
+```
+Contrôle visuel du PDF (poppler absent sous Windows) : `pip install pypdfium2` puis rasteriser les pages avec
+`pypdfium2.PdfDocument(...)[i].render(scale=1.6).to_pil()` ; ce n'est pas un prérequis du repo.
 Prérequis : `pip install playwright && python -m playwright install chromium`.
 
 Le script **échoue volontairement** si Tailwind n'est pas appliqué, plutôt que de produire

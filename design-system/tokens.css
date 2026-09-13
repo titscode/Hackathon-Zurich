@@ -21,11 +21,12 @@
   --accent-bright: #4D8FE6;
   --accent-soft: rgba(28, 105, 212, 0.14);
 
-  /* §1 Sémantique, désaturés */
-  --positive: #3FBF7F;
-  --warning: #D9A441;
-  --danger: #D9534F;
-  --weather: #6FA8DC;
+  /* §1 Sémantique, désaturés, avec leur fond teinté à 14 % (icônes, tags, alertes) */
+  --positive: #3FBF7F;  --positive-soft: rgba(63, 191, 127, 0.14);
+  --warning: #D9A441;   --warning-soft: rgba(217, 164, 65, 0.14);
+  --danger: #D9534F;    --danger-soft: rgba(217, 83, 79, 0.14);
+  --weather: #6FA8DC;   --weather-soft: rgba(111, 168, 220, 0.14);
+  --star: #E4B75A;      /* or des notes */
 
   /* §1 Route sur la carte */
   --route-selected: #F4F5F7;
@@ -73,6 +74,8 @@ body {
 
 /* ---------------------------------------------------------------- §2 Typo */
 .display     { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.display-xl  { font-size: 56px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }   /* ride mode seulement (§2) */
+.display-2   { font-size: 26px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.1; }  /* display réduit (SCREENS 07) */
 .title-1     { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
 .title-2     { font-size: 20px; font-weight: 600; line-height: 1.25; }
 .body        { font-size: 15px; font-weight: 400; line-height: 1.45; }
@@ -85,13 +88,14 @@ body {
 .t2 { color: var(--text-2); } .t3 { color: var(--text-3); }
 
 /* ------------------------------------------------------- Chrome iOS (§4) */
+/* iOS 17, iPhone 15 Pro : 59 px, contenu centré sur l'axe de la Dynamic Island (y = 29,5), heure sous le coin arrondi */
 .statusbar {
-  height: 54px; padding: 0 var(--gutter); display: flex; align-items: flex-end;
-  padding-bottom: 8px; justify-content: space-between;
-  font-size: 12px; font-weight: 600; color: var(--text-1);
+  height: 59px; padding: 1px 36px 0 40px; display: flex; align-items: center; justify-content: space-between;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1);
   position: relative; z-index: 20;
 }
-.statusbar .icons { display: flex; align-items: center; gap: 6px; }
+.statusbar .time { line-height: 1; }
+.statusbar .icons { display: flex; align-items: center; gap: 7px; }
 .home-indicator {
   position: absolute; left: 0; right: 0; bottom: 8px; height: 5px;
   display: flex; justify-content: center; z-index: 30; pointer-events: none;
@@ -108,9 +112,35 @@ body {
 .btn-primary   { background: var(--accent); }
 .btn-secondary { background: var(--surface-2); border: 1px solid var(--border); }
 .btn-tertiary  {
-  height: auto; width: auto; background: none; color: var(--accent-bright);
-  font-size: 15px; font-weight: 500; padding: 0;
+  height: auto; width: auto; background: none; border: 0; color: var(--accent-bright);
+  font-size: 15px; font-weight: 500; padding: 0; font-family: inherit; cursor: pointer;
 }
+
+/* ---------------------------------------- §4 Icône sur fond teinté, tag, étoiles */
+.ico-tint { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; flex: none; }
+.ico-tint.accent   { background: var(--accent-soft);   color: var(--accent-bright); }
+.ico-tint.positive { background: var(--positive-soft); color: var(--positive); }
+.ico-tint.warning  { background: var(--warning-soft);  color: var(--warning); }
+.ico-tint.weather  { background: var(--weather-soft);  color: var(--weather); }
+.ico-tint.danger   { background: var(--danger-soft);   color: var(--danger); }
+.ico-tint.neutral  { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+.tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap;
+  background: var(--surface-2); color: var(--text-2);
+}
+.tag.accent   { background: var(--accent-soft);   color: var(--accent-bright); }
+.tag.positive { background: var(--positive-soft); color: var(--positive); }
+.tag.warning  { background: var(--warning-soft);  color: var(--warning); }
+.tag.weather  { background: var(--weather-soft);  color: var(--weather); }
+/* tags posés sur une photo : fond sombre à 70 % pour rester lisibles sur un ciel clair */
+.tags .tag { background: rgba(10, 11, 13, 0.70); }
+.stars, .star { color: var(--star); }
+.gauge-fill.accent   { background: var(--accent-bright); }
+.gauge-fill.positive { background: var(--positive); }
+.gauge-fill.weather  { background: var(--weather); }
+.gauge-fill.warning  { background: var(--warning); }
+.gauge-fill.star     { background: var(--star); }
 
 /* -------------------------------------------------------------- §4 Chips */
 .chip {
@@ -120,6 +150,7 @@ body {
   display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
 }
 .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-bright); }
+.chip.picked { border-color: var(--border-strong); color: var(--text-1); }   /* réponse déjà choisie (06), sans accent */
 
 /* -------------------------------------------------------------- §4 Cards */
 .card {
@@ -171,5 +202,134 @@ body {
 /* §7 : la tab bar ne chevauche jamais le contenu */
 .scroll { overflow-y: auto; height: 100%; padding-bottom: 100px; scrollbar-width: none; }
 .scroll::-webkit-scrollbar { display: none; }
+
+/* ------------------------------------------------- Ligne segment (04, 07) */
+.seg {
+  display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+}
+.seg .avatar { width: 32px; height: 32px; flex: none; }
+.seg .t { flex: 1; min-width: 0; }
+.seg .name { font-size: 14px; font-weight: 500; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seg .meta { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.seg .meta svg { color: var(--text-1); }
+.seg .count { font-size: 12px; color: var(--text-3); flex: none; }
+
+/* ------------------------------------------------------------- §5 Carte */
+/* Leaflet vendorisé ; fond choisi par design-system/tiles/source.js (scripts/cache_tiles.py) :
+   MapTiler dataviz-dark si MAPTILER_KEY, sinon OSM gommé puis assombri par .map-osm. */
+.leaflet-container { background: var(--bg); font-family: inherit; }
+.leaflet-control-attribution { display: none; }            /* masquée dans le mockup */
+.map-osm  .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(0.2) brightness(0.45) contrast(1.25); }
+.map-dark .leaflet-tile-pane { filter: brightness(0.65); } /* dataviz-dark (sol ≈ L41) ramené sous surface-2 (L29) */
+/* Zoom entier uniquement (zoomSnap: 1) : à zoom fractionnaire Chrome met les tuiles à l'échelle et laisse
+   une couture claire de 1 px. Le cadrage fin passe par rideFitBounds() (data.js) : conteneur agrandi dans un
+   .map-slot puis réduit par scale(s) ; .keep-size annule ce scale sur les marqueurs et étiquettes. */
+.map-slot { position: relative; overflow: hidden; }
+.map-slot > .leaflet-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.leaflet-container .keep-size { transform: scale(calc(1 / var(--s, 1))); }
+.leaflet-tile-pane .ride-tiles { position: absolute; }   /* canvas de tuiles aplaties (rideFlattenTiles) */
+.city-lbl .keep-size { display: inline-block; white-space: nowrap; }
+.city-lbl .keep-size.r { transform-origin: left center; }
+.city-lbl .keep-size.l { transform-origin: right center; }
+/* Étiquettes de ville sur la carte (07) : leaflet.css impose sinon fond blanc + ombre (§3) */
+.city-lbl { background: none; border: 0; box-shadow: none; padding: 0; color: var(--text-2); font: 500 11px Inter, sans-serif; }
+.city-lbl::before { display: none; }
+
+/* ---------------------------------------------- Lignes de liste (03, 05, 09, 12) */
+.list-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.list-row + .list-row { border-top: 1px solid var(--border); }
+.list-row .ico { width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
+                 display: grid; place-items: center; color: var(--text-2); flex: none; }
+.list-row .t { flex: 1; min-width: 0; }
+.list-row .t p { margin: 0; }
+.list-row .t .caption { margin-top: 2px; }
+.list-row .end { flex: none; color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.list-row .end svg { color: var(--text-3); }
+
+/* ------------------------------------------------ Grilles de chiffres (11, 12) */
+.stat .display-2 { margin: 0; }
+.stat .label { margin-top: 4px; }
+
+/* ------------------------------------------------------- Alertes (05, 09) */
+.alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px;
+         background: var(--surface-1); border: 1px solid var(--border); }
+.alert svg { flex: none; margin-top: 1px; }
+.alert.warning { background: var(--warning-soft); border-color: transparent; }
+.alert.warning svg { color: var(--warning); }
+.alert.weather { background: var(--weather-soft); border-color: transparent; }
+.alert.weather svg { color: var(--weather); }
+.alert p { margin: 0; }
+
+/* ------------------------------ Barre d'actions fixe en bas (05, 07, 09) */
+.actions-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding: 12px var(--gutter) 30px; background: var(--bg); border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.scroll.under-actions { padding-bottom: 110px; }
+
+/* ------------------------------------------------ Bouton retour (03, 05, 09) */
+.back-btn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--text-1); }
+
+/* --------------------------------------- Écran TFT moto 10,25" (10-ride-mode#bike) */
+/* DESIGN.md §5 : cadre paysage, fond bg, mêmes typos, flèche en text-1, rien d'autre en couleur.
+   Artboard 1920×720 (ratio du TFT), typo ×2.4 par rapport au téléphone. */
+.tft {
+  position: relative; width: 1920px; height: 720px; overflow: hidden;
+  background: var(--bg); color: var(--text-1); flex: none;
+}
+/* Écran TFT complet (tft-0N-*.html) — DESIGN.md §5. Trois zones fixes sur tous les écrans : barre haute (y 40),
+   zone principale (y 108 → 568), ligne basse (y 596 → 676). Une idée par écran, sept tailles de texte
+   (24, 32, 44, 56, 64, 96, 120), une seule card au maximum, ni tag ni icône sur fond teinté. Aucun tactile : la molette
+   du Multi-Controller déplace un focus unique (anneau accent), la voix fait le reste. */
+.tft.page { padding: 40px 96px 44px; display: grid; grid-template-rows: 40px 1fr 80px; row-gap: 28px; }
+.tft-top { display: flex; justify-content: space-between; align-items: center; font-size: 24px; font-weight: 500; color: var(--text-3); }
+.tft-top b { font-weight: 600; color: var(--text-2); }
+.tft-main { display: grid; column-gap: 56px; align-items: start; min-height: 0; }
+.tft-main.ride { grid-template-columns: 400px 1fr 400px; }      /* T2, T3, T4 : manœuvre / information / vitesse */
+.tft-main.brief { grid-template-columns: 1fr 400px; }           /* T1 : route / moto */
+.tft-main .col-l { align-self: center; justify-self: center; text-align: center; color: var(--text-1); }
+.tft-main .col-r { align-self: stretch; border-left: 2px solid var(--border); padding-left: 56px; }
+.tft-bottom { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+/* Texte : 24 (label, caption, hint), 32 (corps), 44 (titre), 64 (valeur, titre d'écran), 96 (vitesse), 120 (distance) */
+.tft-hero  { font-size: 64px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.tft-title { font-size: 44px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+.tft-body  { font-size: 32px; font-weight: 400; line-height: 1.35; color: var(--text-2); }
+.tft-body b { font-weight: 600; color: var(--text-1); }
+.tft-cap   { font-size: 24px; font-weight: 400; line-height: 1.3; color: var(--text-2); }
+.tft-value.xl { font-size: 96px; }
+.tft-value.sm { font-size: 44px; }
+.tft-unit { font-size: 32px; font-weight: 500; color: var(--text-2); margin-left: 8px; }
+.tft-stat .tft-label { margin-top: 6px; }
+.tft-value.weather { color: var(--weather); }
+/* Colonne droite des écrans en roulant : vitesse + limite sur une ligne, puis deux petites valeurs */
+.tft-speed { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.tft-speed .tft-value { color: var(--accent-bright); }
+.tft-two { display: flex; flex-direction: column; gap: 28px; margin-top: 40px; }
+.tft-two .tft-value { white-space: nowrap; }
+.tft-limit { width: 84px; height: 84px; border-radius: 50%; background: var(--text-1); border: 7px solid var(--text-2); box-sizing: border-box;
+             color: var(--bg); font-size: 32px; font-weight: 600; display: grid; place-items: center; flex: none; }
+.tft-gauge { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.tft-gauge > i { display: block; height: 100%; border-radius: 999px; background: var(--text-1); }
+.tft-gauge > i.accent { background: var(--accent-bright); }  .tft-gauge > i.positive { background: var(--positive); }
+.tft-avatar { width: 56px; height: 56px; flex: none; }
+.tft-stars { color: var(--star); display: inline-flex; gap: 2px; vertical-align: -2px; }
+.tft-line { display: flex; align-items: center; gap: 20px; }                 /* ligne avatar + texte, ou icône + texte */
+.tft-line svg { flex: none; }
+.tft-btn { height: 80px; padding: 0 36px; border-radius: 20px; background: var(--surface-2); border: 2px solid var(--border);
+           font-size: 32px; font-weight: 500; color: var(--text-1); display: inline-flex; align-items: center; justify-content: center; gap: 16px; box-sizing: border-box; }
+.tft-btn.sm { height: 56px; padding: 0 24px; border-radius: 16px; font-size: 24px; gap: 10px; }
+.tft-btn.focus { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 6px var(--accent-soft); }
+.tft-hint { display: flex; align-items: center; gap: 12px; font-size: 24px; color: var(--text-3); white-space: nowrap; }
+.tft-hint svg { flex: none; }
+.tft-card { background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 28px; padding: 36px 40px; box-sizing: border-box; }
+.tft-scrim { position: absolute; inset: 0; background: rgba(10, 11, 13, 0.62); z-index: 5; }
+
+.tft .tft-dist { font-size: 120px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.tft .tft-street { font-size: 56px; font-weight: 600; line-height: 1.2; }
+.tft .tft-then { font-size: 32px; font-weight: 400; color: var(--text-2); }
+.tft .tft-value { font-size: 64px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.tft .tft-label { font-size: 24px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
 
 a { text-decoration: none; color: inherit; }

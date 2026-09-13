@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RIDE by BMW Motorrad — mockups</title>
+  <link rel="stylesheet" href="design-system/tokens.css">
+  <link rel="stylesheet" href="design-system/iphone.css">
+  <style>
+    /* Galerie de démo (SCREENS.md index.html) : fond bg, colonne de 10 features, téléphone à droite. Rien d'autre. */
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--text-1); display: block; overflow: hidden; }
+    .demo { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+
+    /* Colonne gauche */
+    .panel { padding: 24px 24px 16px; border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+    .brand .display { font-size: 26px; letter-spacing: 0.02em; }
+    .brand .label { margin: 4px 0 0; }
+    .brand .caption { margin: 12px 0 0; }
+    .features { margin-top: 16px; overflow-y: auto; scrollbar-width: none; flex: 1; min-height: 0; padding-bottom: 8px; }
+    #feature-list, #tft-list { display: flex; flex-direction: column; gap: 6px; }
+    .features::-webkit-scrollbar { display: none; }
+    .feature { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; cursor: pointer;
+               background: var(--surface-1); border: 1px solid var(--border); transition: border-color 150ms var(--ease), background 150ms var(--ease); }
+    .feature:hover { border-color: var(--border-strong); }
+    .feature.on { border-color: var(--text-2); background: var(--surface-2); }
+    .feature .n { flex: none; width: 22px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--text-3); padding-top: 2px; }
+    .feature.on .n { color: var(--text-1); }
+    .feature .t { min-width: 0; }
+    .feature .t p { margin: 0; font-size: 13px; font-weight: 500; line-height: 1.3; }
+    .feature .t .caption { margin-top: 2px; font-size: 11px; }
+    .hint { margin: 12px 0 0; display: flex; align-items: center; gap: 8px; color: var(--text-3); font-size: 12px; }
+    .hint kbd { font-family: inherit; font-size: 11px; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border-strong); color: var(--text-2); }
+
+    /* Scène : téléphone (ou tableau de bord) centré et mis à l'échelle pour tenir dans la hauteur */
+    .stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 24px; min-width: 0; }
+    .scale { transform-origin: 0 0; }
+    .shot, .dash { display: none; }
+    .stage.is-phone .shot { display: block; }
+    .stage.is-tft .dash { display: block; --tft-scale: 0.52; }   /* 998×374 : plus grand que dans le PDF, lisible */
+    .legend { display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 13px; }
+    .legend b { font-weight: 500; color: var(--text-1); }
+    .legend .sep { color: var(--text-3); }
+    .nav { display: flex; gap: 8px; position: absolute; right: 24px; bottom: 24px; }
+    .nav button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-2);
+                  display: grid; place-items: center; cursor: pointer; }
+    .nav button:hover { border-color: var(--border-strong); color: var(--text-1); }
+  </style>
+</head>
+<body>
+<div class="demo">
+  <aside class="panel">
+    <div class="brand">
+      <div class="display">RIDE</div>
+      <p class="label">by BMW Motorrad</p>
+      <p class="caption">Find your best road. Ten features, twelve screens, five bike screens, one companion that learns how you ride.</p>
+    </div>
+    <div class="features" id="features">
+      <div id="feature-list"></div>
+      <p class="label" style="margin:14px 0 6px">On the bike · 10.25" TFT</p>
+      <div id="tft-list"></div>
+    </div>
+    <p class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next screen</p>
+  </aside>
+
+  <main class="stage is-phone" id="stage">
+    <div class="scale" id="scale">
+      <div class="shot"><iframe id="phone" title="RIDE screen"></iframe></div>
+      <div class="dash"><iframe id="tft" title="Bike display"></iframe></div>
+    </div>
+    <p class="legend" id="legend"></p>
+    <div class="nav">
+      <button type="button" id="prev" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <button type="button" id="next" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+  </main>
+</div>
+
+<script src="screens/features.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const seq = RIDE_SEQUENCE, feats = RIDE_FEATURES;
+  let cur = -1;
+
+  $("feature-list").innerHTML = feats.map(f => `
+    <div class="feature" data-n="${f.n}" data-target="${f.target}">
+      <span class="n">${String(f.n).padStart(2, "0")}</span>
+      <div class="t"><p>${f.title}</p><span class="caption">Screens ${f.screens}</span></div>
+    </div>`).join("");
+  $("tft-list").innerHTML = RIDE_TFT.map((e, i) => `
+    <div class="feature tft-item" data-id="${e.id}" data-target="${e.id}">
+      <span class="n">T${i + 1}</span>
+      <div class="t"><p>${e.title}</p><span class="caption">${e.state}</span></div>
+    </div>`).join("");
+
+  /* Charge l'écran par src complet : un simple changement de hash ne rejoue pas l'état des écrans. */
+  function show(i) {
+    cur = (i + seq.length) % seq.length;
+    const e = seq[cur], stage = $("stage");
+    stage.classList.toggle("is-tft", !!e.tft);
+    stage.classList.toggle("is-phone", !e.tft);
+    const frame = e.tft ? $("tft") : $("phone");
+    /* Même écran rejoué (ex. Replay) : un cache-buster dans la query force le rechargement, sans toucher au
+       contentWindow (interdit en file:// : origine « null »). */
+    const [file, hash] = e.src.split("#");
+    const same = (frame.dataset.src || "") === e.src;
+    frame.dataset.src = e.src;
+    frame.setAttribute("src", "screens/" + file + (same ? "?r=" + Date.now() : "") + (hash ? "#" + hash : ""));
+    document.querySelectorAll(".feature").forEach(el => el.classList.toggle("on", e.tft ? el.dataset.id === e.id : +el.dataset.n === e.feature));
+    $("legend").innerHTML = e.tft
+      ? `<b>${e.title}</b><span class="sep">·</span>As shown on the bike's 10.25" TFT`
+      : `<b>${e.title}</b>${e.state ? `<span class="sep">·</span>${e.state}` : ""}<span class="sep">·</span>Feature ${String(e.feature).padStart(2, "0")}`;
+    location.hash = e.id;
+  }
+  window.showEntry = id => show(seq.findIndex(e => e.id === id));
+
+  document.querySelectorAll(".feature").forEach(el => el.addEventListener("click", () => window.showEntry(el.dataset.target)));
+  $("prev").addEventListener("click", () => show(cur - 1));
+  $("next").addEventListener("click", () => show(cur + 1));
+  window.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowRight") { show(cur + 1); ev.preventDefault(); }
+    if (ev.key === "ArrowLeft") { show(cur - 1); ev.preventDefault(); }
+  });
+
+  /* Le téléphone (868 px) tient toujours dans la fenêtre. */
+  function fit() {
+    const e = seq[Math.max(cur, 0)], tft = !!(e && e.tft);
+    const w = tft ? 998 : 390, h = tft ? 374 : 844;
+    const s = Math.min(1, (window.innerHeight - 130) / (h + 16), ($("stage").clientWidth - 48) / w);
+    $("scale").style.transform = `scale(${s})`;
+    $("scale").style.height = h * s + "px";
+    $("scale").style.width = w * s + "px";
+  }
+  window.addEventListener("resize", fit);
+
+  const start = seq.findIndex(e => e.id === location.hash.slice(1));
+  show(start >= 0 ? start : 0);   // première maquette de la sélection par défaut
+  fit();
+  new MutationObserver(fit).observe($("stage"), { attributes: true, attributeFilter: ["class"] });
+</script>
+</body>
+</html>

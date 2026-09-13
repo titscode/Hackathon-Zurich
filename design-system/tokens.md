@@ -1,35 +1,42 @@
-# Design tokens
+# Design tokens RIDE
 
-À remplir depuis `DESIGN.md` §5 et les images de `refs/`. Tout écran réutilise ces valeurs.
-Si un token manque, on l'ajoute **ici d'abord**, on n'invente pas une valeur dans un écran.
+`DESIGN.md` fait foi ; ce fichier résume ce que `tokens.css` expose. Un token manquant s'ajoute ici et dans
+`tokens.css` avant d'être utilisé dans un écran. Aucune valeur inventée au cas par cas.
 
-## Couleurs
+## Couleurs (`tokens.css` `:root`)
 
-| Token | Classe Tailwind | Usage |
+| Token | Valeur | Usage |
 |---|---|---|
-| primaire | `indigo-600` | actions, accents |
-| texte fort | `neutral-900` | titres, valeurs |
-| texte faible | `neutral-500` | libellés, secondaire |
-| bordure | `neutral-200` | cartes, séparateurs |
-| fond | `white` | fond d'écran |
+| `--bg` | #0A0B0D | fond d'écran |
+| `--surface-1` / `--surface-2` | #121417 / #1A1D22 | cards / cards élevées, bottom sheets, champs |
+| `--border` / `--border-strong` | #262A31 / #343941 | bordure 1 px partout / focus, séparateurs marqués |
+| `--text-1` / `--text-2` / `--text-3` | #F4F5F7 / #9AA0A8 / #5F6670 | titres et valeurs / labels / métadonnées |
+| `--accent` / `--accent-bright` / `--accent-soft` | #1C69D4 / #4D8FE6 / rgba(28,105,212,.14) | CTA unique / texte accent / chips actives |
+| `--positive` `--warning` `--danger` `--weather` (+ `*-soft` à 14 %) | #3FBF7F #D9A441 #D9534F #6FA8DC | sémantique désaturée : jauges, icônes teintées, tags, alertes |
+| `--star` | #E4B75A | étoiles et notes |
+| `--route-selected` `--route-alt` `--route-day1..3` | voir DESIGN.md §1 | tracés Leaflet |
 
-## Typographie
+## Typographie (classes)
 
-| Rôle | Taille / graisse | Classe |
-|---|---|---|
-| titre écran | 34px bold | `text-[34px] font-bold tracking-tight` |
-| section | 22px semibold | `text-[22px] font-semibold` |
-| corps | 16px regular | `text-[16px]` |
-| libellé | 14px regular | `text-[14px] text-neutral-500` |
-| micro | 13px regular | `text-[13px] text-neutral-400` |
+`.display` 34/600 · `.display-2` 26/600 · `.title-1` 26/600 · `.title-2` 20/600 · `.body` 15/400 · `.body-strong` 15/500 ·
+`.caption` 13/400 text-2 · `.label` 11/500 capitales text-3. Inter vendorisée (`fonts/inter.css`), chiffres tabulaires.
 
-## Espacement & formes
+## Espacements et formes
 
-- Gouttière horizontale de l'écran : `px-6` (24px)
-- Rayon carte : `rounded-2xl` (16px)
-- Hauteur bouton principal : `h-[54px]`
-- Status bar : 54px · home indicator : 34px
+Grille 4 px, `--gutter` 20 px, `--r-card` 16, `--r-btn` 12, `--r-sheet` 20, `--r-chip` 999. Aucune ombre, aucun dégradé de surface.
 
-## Chrome iOS
+## Composants (`tokens.css`)
 
-Status bar et home indicator sont copiables depuis `screens/test.html` (SVG inline, pas d'image).
+`.screen` (390×844) · `.statusbar` / `.home-indicator` / `.tabbar` (`data.js`) · `.btn-primary` `.btn-secondary` `.btn-tertiary` ·
+`.chip` (`.active`, `.picked`) · `.tag.{accent,positive,warning,weather}` · `.ico-tint.{…}` · `.stars` · `.card` `.card-photo` + `.overlay` · `.gauge-track` / `.gauge-fill` · `.avatar` · `.sheet` + `.sheet-handle` ·
+`.scroll` (padding-bottom 100 px) · `.seg` (ligne segment) · `.list-row` · `.stat` · `.alert` (`.warning`, `.weather`) ·
+`.actions-bar` + `.scroll.under-actions` · `.back-btn` · `.tft` (artboard 1920×720 du TFT moto, `.tft-dist` `.tft-street` `.tft-then` `.tft-value` `.tft-label`).
+
+## Carte
+
+Leaflet vendorisé, `.map-slot` + `rideFitBounds()` (`data.js`), `.keep-size` sur marqueurs et étiquettes, fond choisi par `tiles/source.js`.
+
+## Cadres de présentation (hors téléphone)
+
+`iphone.css` : `.shot` (écran seul 390×844, coins 46 px, liseré 1 px, ombre douce) et `.dash` (TFT 1920×720 réduit, coins 16 px).
+Utilisés par `index.html` et `scripts/export_pdf.py`, jamais dans un écran. Aucun boîtier de téléphone.

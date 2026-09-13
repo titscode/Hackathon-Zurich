@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RIDE — TFT · Segment mode</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Mode segment (SCREENS.md tft-03) · une idée : la prochaine épingle. */
+    .col-l .tft-title { margin-top: 20px; }
+    .col-l .tft-body { margin-top: 8px; }
+
+    .col-c .head { display: flex; align-items: baseline; gap: 20px; }
+    .col-c svg.prof { display: block; width: 100%; height: 180px; margin-top: 24px; }
+    .col-c .quote { margin-top: 28px; }
+    .col-c .quote .tft-body { color: var(--text-1); }
+    .col-c .quote .tft-body span { color: var(--text-3); font-size: 24px; margin-left: 12px; }
+    .col-c .warn { margin-top: 20px; font-size: 24px; color: var(--warning); }
+    .col-c .warn svg { width: 28px; height: 28px; }
+
+    .col-r .prog { margin-top: 40px; }
+    .col-r .prog .tft-body { margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+<div class="tft page">
+  <div class="tft-top"><span><b>RIDE</b> · Segment mode</span><span id="top-r"></span></div>
+
+  <div class="tft-main ride">
+    <div class="col-l">
+      <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V9a5 5 0 0 0-10 0v4"/><path d="m3 10 3 3 3-3"/></svg>
+      <div class="tft-title" id="hp"></div>
+      <div class="tft-body" id="next"></div>
+    </div>
+
+    <div class="col-c">
+      <div class="head"><div class="tft-title" id="name"></div><div class="tft-body" id="rate"></div></div>
+      <svg class="prof" id="profile" aria-hidden="true"></svg>
+      <div class="tft-line quote" id="tip"></div>
+      <div class="tft-line warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <span id="warn"></span>
+      </div>
+    </div>
+
+    <div class="col-r">
+      <div class="tft-speed">
+        <div class="tft-stat"><div class="tft-value xl" id="speed"></div><div class="tft-label">Speed</div></div>
+        <div class="tft-limit" id="limit"></div>
+      </div>
+      <div class="prog">
+        <div class="tft-body" id="prog-txt"></div>
+        <div class="tft-gauge"><i class="accent" id="prog"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tft-bottom"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const T = RIDE.tft.segment, S = RIDE.segments[0], K = RIDE.kesselberg;
+  $("top-r").textContent = `${S.name} · ${T.done} of ${T.total} km`;
+  $("hp").textContent = `Hairpin ${T.hairpin} of ${T.hairpins}`;
+  $("next").innerHTML = `<b>${T.next}</b> · ${T.dist}`;
+  $("name").textContent = S.name;
+  $("rate").innerHTML = `<span class="tft-stars">${star(28)}</span> ${S.rating} · ${S.author}`;
+
+  /* Profil du segment à la taille réelle, avec la position */
+  const svg = $("profile"), W = svg.clientWidth, H = 180, padT = 16, padB = 8;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const P = K.profile, min = Math.min(...P), max = Math.max(...P);
+  const pts = P.map((v, i) => [i / (P.length - 1) * W, padT + (1 - (v - min) / (max - min)) * (H - padT - padB)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const x = T.done / T.total, i0 = Math.min(P.length - 2, Math.floor(x * (P.length - 1))), f = x * (P.length - 1) - i0;
+  const y = pts[i0][1] + (pts[i0 + 1][1] - pts[i0][1]) * f;
+  svg.innerHTML = `<path d="${d} L${W},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${x * W}" cy="${y}" r="22" fill="var(--accent-soft)"/>
+    <circle cx="${x * W}" cy="${y}" r="9" fill="var(--text-1)" stroke="var(--bg)" stroke-width="4"/>`;
+
+  $("tip").innerHTML = `<img class="avatar tft-avatar" src="../assets/avatars/${S.avatar}.png" alt="">
+    <div class="tft-body">“${T.tip}”<span>${S.author}</span></div>`;
+  $("warn").textContent = `${T.warning} · ${T.warningSub.toLowerCase()}`;
+
+  $("speed").innerHTML = `${T.speed}<span class="tft-unit">km/h</span>`;
+  $("limit").textContent = RIDE.tft.speedLimit;
+  $("prog-txt").innerHTML = `<b>${T.done} km</b> of ${T.total} km`;
+  $("prog").style.width = `${x * 100}%`;
+</script>
+</body>
+</html>

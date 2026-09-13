@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RIDE — TFT · Ride complete</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Arrivée (SCREENS.md tft-05) · une idée : la sortie est finie, note-la. Une seule colonne, aucune card. */
+    .tft-main.one { grid-template-columns: 1fr; }
+    .sub { margin-top: 8px; }
+
+    .stats { display: flex; margin-top: 24px; }
+    .stats .tft-stat + .tft-stat { border-left: 2px solid var(--border); padding-left: 48px; margin-left: 48px; }
+
+    .rate { margin-top: 28px; }
+    .rate .tft-label { display: block; }
+    .rate .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 14px; }
+    .rate .n { font-size: 32px; font-weight: 600; line-height: 1.2; }
+    .rate .tft-cap { margin-top: 2px; }
+    .rate .tft-btn { margin-top: 12px; color: var(--positive); }
+    .rate .tft-btn svg { width: 24px; height: 24px; }
+
+    .tft-bottom .learn { font-size: 24px; color: var(--text-2); }
+    .tft-bottom .learn b { color: var(--text-1); font-weight: 500; }
+    .tft-bottom .sent { display: flex; align-items: center; gap: 32px; }
+    .tft-bottom .sent .ok { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 500; color: var(--positive); }
+  </style>
+</head>
+<body>
+<div class="tft page">
+  <div class="tft-top"><span><b>RIDE</b> · Ride complete</span><span id="when"></span></div>
+
+  <div class="tft-main one">
+    <div>
+      <div class="tft-hero" id="title"></div>
+      <div class="tft-body sub" id="sub"></div>
+      <div class="stats" id="stats"></div>
+      <div class="rate">
+        <span class="tft-label">Rate your segments · turn the wheel, press to change</span>
+        <div class="cols" id="rated"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tft-bottom">
+    <div class="learn">Your companion learned: <b id="learned"></b></div>
+    <div class="sent">
+      <span class="ok"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg><span id="sent"></span></span>
+      <span class="tft-hint">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3"/></svg>
+        <span id="close"></span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const R = RIDE.recap, T = RIDE.tft.recap;
+  $("when").textContent = R.when;
+  $("title").textContent = `${R.from} → ${R.to}`;
+  $("sub").textContent = `Most fun · ${R.time} on the road · no motorway`;
+  $("stats").innerHTML = [[R.km, "Distance"], [R.time, "Riding"], [R.passes, "Passes"], [R.curv, "Curviness"]]
+    .map(([v, l]) => `<div class="tft-stat"><div class="tft-value">${v}</div><div class="tft-label">${l}</div></div>`).join("");
+
+  const up = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7a2 2 0 0 1-1.9 1.4H7V10l4.5-7.5A2 2 0 0 1 15 5.9z"/></svg>';
+  $("rated").innerHTML = R.rated.map(([n, v], i) => { const s = segByName(n); return `
+    <div>
+      <div class="n">${n}</div>
+      <div class="tft-cap">${s.author} · ${s.km} · curv ${s.curv}</div>
+      <span class="tft-btn sm${i === 0 ? " focus" : ""}">${up}${v}</span>
+    </div>`; }).join("");
+
+  $("learned").textContent = R.learned;
+  $("sent").textContent = T.sent;
+  $("close").textContent = T.close;
+</script>
+</body>
+</html>

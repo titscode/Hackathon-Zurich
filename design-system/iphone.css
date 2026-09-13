@@ -1,0 +1,25 @@
+/* Cadres de présentation hors téléphone — utilisés par index.html (galerie) et scripts/export_pdf.py.
+   Jamais dans un écran. Pas de boîtier de téléphone : seule la maquette est montrée, aux coins de l'écran
+   (rayon 46 px), avec un liseré 1 px et une ombre douce sur le fond bg.
+
+   Markup attendu :
+   <div class="shot"><iframe|img></div>          écran 390×844
+   <div class="dash"><iframe|img></div>          TFT 1920×720, réduit par --tft-scale */
+
+/* ------------------------------------------------------------ Écran seul */
+.shot {
+  position: relative; width: 390px; height: 844px; border-radius: 46px; overflow: hidden; background: #0A0B0D;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 30px 70px rgba(0, 0, 0, 0.55), 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+.shot iframe, .shot img { display: block; width: 390px; height: 844px; border: 0; }
+
+/* ------------------------------------------------------------ TFT 10,25" */
+/* Artboard 1920×720 réduit par --tft-scale (0.42 → 806×302), coins 16 px, même liseré et même ombre. */
+.dash {
+  --tft-scale: 0.42;
+  position: relative; overflow: hidden; border-radius: 16px; background: #0A0B0D;
+  width: calc(1920px * var(--tft-scale)); height: calc(720px * var(--tft-scale));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 30px 70px rgba(0, 0, 0, 0.55), 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+.dash iframe { display: block; width: 1920px; height: 720px; border: 0; transform: scale(var(--tft-scale)); transform-origin: 0 0; }
+.dash img { display: block; width: 100%; height: 100%; }

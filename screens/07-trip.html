@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Alpine Loop</title>
+  <link rel="stylesheet" href="../design-system/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    .scroll { padding-bottom: 110px; }              /* barre d'actions fixe de 94 px (§7) */
+
+    .head { padding: 4px var(--gutter) 0; }
+    .head .row { display: flex; align-items: center; gap: 6px; }
+    .head .back { width: 36px; height: 36px; margin-left: -10px; display: grid; place-items: center; color: var(--text-2); }
+    .head .title-1 { margin: 0; }
+    .head .caption { margin: 4px 0 0; }
+
+    /* Carte pleine largeur, 3 tracés (day1 blanc, day2 accent-bright, day3 text-2) */
+    .map-slot { height: 280px; margin-top: 12px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); z-index: 0; background: var(--bg); }
+    .legend {
+      position: absolute; left: var(--gutter); top: 12px; z-index: 500;
+      display: flex; gap: 12px; height: 28px; align-items: center; padding: 0 10px; border-radius: 8px;
+      background: var(--surface-2); border: 1px solid var(--border); font-size: 11px; font-weight: 500; color: var(--text-2);
+    }
+    .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 2px; }
+    .city { width: 8px; height: 8px; border-radius: 50%; background: var(--text-1); border: 2px solid var(--bg); box-sizing: content-box; }
+
+    /* Slider Fast ↔ Fun compact : une ligne de 28 px, poignée au cran Fun */
+    .slider { display: flex; align-items: center; gap: 10px; padding: 12px var(--gutter) 0; }
+    .slider .caption { flex: none; font-size: 12px; }
+    .slider .caption.on { color: var(--text-1); }
+    .slider .track { position: relative; flex: 1; height: 28px; }
+    .slider .rail { position: absolute; left: 14px; right: 14px; top: 12px; height: 4px; border-radius: 999px; background: var(--border); }
+    .slider .stop { position: absolute; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); transform: translateX(-50%); }
+    .slider .knob {
+      position: absolute; top: 0; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--text-1); border: 2px solid var(--accent); box-sizing: border-box; transform: translateX(-50%);
+    }
+
+    /* Cards jour */
+    .days { padding: 12px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+    .day .h { display: flex; align-items: center; gap: 10px; }
+    .day .h i { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+    .day .h .title-2 { margin: 0; }
+    .day .kpis { display: flex; gap: 24px; margin-top: 12px; }
+    .day .kpis .label { margin-top: 2px; }
+    .day .chips { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .day .info { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .day .info .caption { display: flex; align-items: center; gap: 6px; margin: 0; }
+    .day .info svg { flex: none; }
+    .day .info .sun { color: var(--warning); }  .day .info .thermo { color: var(--weather); }
+    .day .info .bed, .day .info .home { color: var(--text-3); }
+    .day .seg .meta svg { color: var(--star); }
+    .alt .t .caption svg { color: var(--star); }
+    .day .segs { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .day .seg { background: var(--surface-2); }
+    .day .seg .meta { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .day .seg .meta svg { vertical-align: -1px; }
+    .seg .btn-tertiary { font-size: 14px; flex: none; }
+
+    /* Barre d'actions fixe : secondaire + primaire côte à côte */
+    .actions {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+      padding: 12px var(--gutter) 30px; background: var(--bg); border-top: 1px solid var(--border);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+
+    /* Bottom sheet Swap (#swap) */
+    .scrim { position: absolute; inset: 0; background: rgba(10, 11, 13, 0.6); z-index: 26; display: none; }
+    .swap-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 28; padding-bottom: 34px; display: none; }
+    .screen.swap .scrim, .screen.swap .swap-sheet { display: block; }
+    .swap-sheet .title-2 { margin: 0; }
+    .swap-sheet > .caption { margin: 4px 0 0; }
+    .alts { margin-top: 8px; }
+    .alt { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+    .alt + .alt { border-top: 1px solid var(--border); }
+    .alt .avatar { width: 40px; height: 40px; flex: none; }
+    .alt .t { flex: 1; min-width: 0; }
+    .alt .t p { margin: 0; }
+    .alt .t .caption { margin-top: 2px; }
+    .alt .t .caption svg { color: var(--text-1); vertical-align: -1px; margin-right: 2px; }
+    .alt .delta { flex: none; color: var(--text-1); font-size: 13px; font-weight: 500; }
+    .swap-sheet .btn-tertiary { display: block; margin: 12px auto 0; }
+  </style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <div id="sb"></div>
+
+  <div class="scroll" id="scroll">
+    <header class="head">
+      <div class="row">
+        <a class="back" href="06-voice.html#done" aria-label="Back">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+        <h1 class="title-1" id="title"></h1>
+      </div>
+      <p class="caption" id="sub"></p>
+    </header>
+
+    <div class="map-slot"><div id="map"></div><div class="legend" id="legend"></div></div>
+
+    <div class="slider">
+      <span class="caption">Fast</span>
+      <div class="track">
+        <i class="rail"></i>
+        <span class="stop" style="left:14px"></span><span class="stop" style="left:50%"></span><span class="stop" style="left:calc(100% - 14px)"></span>
+        <span class="knob" id="knob"></span>
+      </div>
+      <span class="caption on">Fun</span>
+    </div>
+
+    <div class="days" id="days"></div>
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-secondary" href="12-profile.html">Save trip</a>
+    <a class="btn btn-primary" href="10-ride-mode.html">Send to bike</a>
+  </div>
+
+  <div class="scrim" id="scrim"></div>
+  <section class="sheet swap-sheet" id="swap"></section>
+
+  <div id="hi"></div>
+</div>
+
+<script src="../design-system/leaflet/leaflet.js"></script>
+<script src="../design-system/tiles/source.js"></script>
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const D = RIDE.trip;
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("title").textContent = D.name;
+  $("sub").textContent = `${D.days.length} days · ${D.totalKm} · ${D.totalTime} · ${D.days[0].from} → ${D.days[D.days.length - 1].to}`;
+  $("legend").innerHTML = D.days.map(d => `<span><i style="background:var(${d.color})"></i>Day ${d.n}</span>`).join("");
+  $("knob").style.left = ["14px", "50%", "calc(100% - 14px)"][D.mode];
+
+  /* ---------------------------------------------------------------- Carte */
+  const css = getComputedStyle(document.documentElement);
+  const C = k => css.getPropertyValue(k).trim();
+  const map = L.map("map", { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false, zoomSnap: 1 });
+  rideTileLayer(map);
+  [...D.days].reverse().forEach(d =>                       // day 3 dessous, day 1 (blanc) dessus
+    L.polyline(d.path, { color: C(d.color), vw: 3.5, opacity: 1, lineCap: "round", lineJoin: "round", interactive: false }).addTo(map));
+  /* Points d'étape. Munich et Innsbruck sont déjà nommés par le fond de carte à ce zoom ; seule Bormio reçoit une étiquette. */
+  const city = (name, ll, dir) => {
+    const m = L.marker(ll, { icon: L.divIcon({ className: "", html: '<div class="city keep-size"></div>', iconSize: [12, 12], iconAnchor: [6, 6] }), interactive: false }).addTo(map);
+    if (dir) m.bindTooltip(`<span class="keep-size ${dir === "left" ? "l" : "r"}">${name}</span>`,
+      { permanent: true, direction: dir, offset: [0, dir === "bottom" ? 8 : dir === "top" ? -8 : 0], className: "city-lbl" }).openTooltip();
+  };
+  city(D.days[0].from, D.days[0].path[0], null);
+  city(D.days[1].from, D.days[1].path[0], null);
+  city(D.days[2].from, D.days[2].path[0], "bottom");
+  rideFitBounds(map, L.latLngBounds(D.days.flatMap(d => d.path)), { paddingTopLeft: [24, 16], paddingBottomRight: [24, 44] });
+
+  /* ------------------------------------------------------------ Cards jour */
+  const ico = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    thermo: '<path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 1 1 4 0z"/>',
+    bed: '<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>',
+    home: '<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  };
+  const svg = (d, cls = "") => `<svg class="${cls}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  /* Un col porte la couleur de son caractère (tags du segment), alpin par défaut */
+  const passTag = p => { const s = segByName(p); return `<span class="tag ${s && s.tags ? tagColor(s.tags[0]) : "weather"}">${p}</span>`; };
+  const segRow = s => `
+    <div class="seg">
+      <img class="avatar" src="../assets/avatars/${s.avatar}.png" alt="">
+      <div class="t"><p class="name">${s.name}</p><div class="meta">${star(11)} ${s.rating} · ${s.km} · curv ${s.curv}</div></div>
+      <a class="btn-tertiary" href="#swap" data-seg="${s.name}">Swap</a>
+    </div>`;
+  $("days").innerHTML = D.days.map(d => `
+    <article class="card day" id="day-${d.n}">
+      <div class="h"><i style="background:var(${d.color})"></i><h2 class="title-2">Day ${d.n} · ${d.from} → ${d.to}</h2></div>
+      <div class="kpis">
+        <div><div class="display-2">${d.km}</div><div class="label">Distance</div></div>
+        <div><div class="display-2">${d.time}</div><div class="label">Riding</div></div>
+        <div><div class="display-2">${d.start}</div><div class="label">Leave</div></div>
+      </div>
+      <div class="chips">${d.passes.map(passTag).join("")}</div>
+      <div class="info">
+        <p class="caption">${d.n === 2 ? svg(ico.thermo, "thermo") : svg(ico.sun, "sun")}${d.weather}</p>
+        <p class="caption">${d.stay === "Home" ? svg(ico.home, "home") : svg(ico.bed, "bed")}${d.stay}</p>
+      </div>
+      <div class="segs">${d.segments.map(n => segRow(segByName(n))).join("")}</div>
+    </article>`).join("");
+
+  /* ------------------------------------------------ Bottom sheet Swap */
+  const subject = "Stelvio", day = D.days[1];             // le vent latéral justifie le swap
+  const sj = segByName(subject);
+  $("swap").innerHTML = `
+    <div class="sheet-handle"></div>
+    <h2 class="title-2">Swap ${sj.name}</h2>
+    <p class="caption">Day ${day.n} · same day, similar distance</p>
+    <div class="alts">${day.alts[subject].map(([n, delta]) => { const s = segByName(n); return `
+      <a class="alt" href="07-trip.html">
+        <img class="avatar" src="../assets/avatars/${s.avatar}.png" alt="">
+        <div class="t"><p class="body-strong">${s.name}</p>
+          <p class="caption">${star(11)} ${s.rating} · ${s.author} · ${s.km} · curv ${s.curv}${s.note ? " · " + s.note : ""}</p></div>
+        <span class="delta">${delta}</span>
+      </a>`; }).join("")}</div>
+    <button class="btn-tertiary" type="button" id="keep">Keep ${sj.name}</button>`;
+
+  const screen = $("screen"), scroll = $("scroll");
+  function openSwap(on) {
+    screen.classList.toggle("swap", on);
+    if (on) scroll.scrollTop = $("day-2").offsetTop - scroll.offsetTop - 12;   // la card Day 2 reste visible au-dessus de la sheet
+  }
+  document.querySelectorAll(".seg .btn-tertiary").forEach(b => b.addEventListener("click", e => { e.preventDefault(); openSwap(true); }));
+  $("scrim").addEventListener("click", () => openSwap(false));
+  $("keep").addEventListener("click", () => openSwap(false));
+  if (location.hash === "#swap") openSwap(true);
+</script>
+</body>
+</html>

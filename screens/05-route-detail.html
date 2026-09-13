@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Route detail</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    .head { padding: 4px var(--gutter) 0; }
+    .head .row { display: flex; align-items: center; gap: 6px; }
+    .head .back-btn { margin-left: -10px; color: var(--text-2); }
+    .head .title-1 { margin: 0; }
+    .head .caption { margin: 4px 0 0; }
+
+    .wrap { padding: 16px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+
+    /* 3 tuiles de chiffres (ref onX : Distance / Elevation gain / Elevation loss) */
+    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tile { padding: 12px 12px; }
+    .tile .ico-tint { width: 28px; height: 28px; border-radius: 8px; margin-bottom: 8px; }
+    .tile .display-2 { font-size: 22px; margin: 0; }
+    .tile .label { margin-top: 4px; }
+
+    .alerts { display: flex; flex-direction: column; gap: 8px; }
+    .alert .body { font-size: 14px; }
+
+    /* Profil d'altitude : ligne blanche 1.5 px sur surface-1, repères des 3 sections */
+    .profile .h { display: flex; justify-content: space-between; align-items: baseline; }
+    .profile .h .label { margin: 0; }
+    .profile .h .caption { color: var(--text-2); }
+    .profile svg { display: block; width: 100%; height: 88px; margin-top: 10px; }
+    .profile .marks { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-3); }
+
+    .section-title { margin: 8px 0 -4px; }
+    .list .body-strong { font-size: 14px; }
+    .list .thumb { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; flex: none; filter: saturate(0.85) contrast(1.05); }
+    .list .end { white-space: nowrap; }
+
+    /* Météo heure par heure : ligne horizontale */
+    .hourly { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); }
+    .hourly::-webkit-scrollbar { display: none; }
+    .hour { flex: none; width: 60px; padding: 10px 0; text-align: center; border-radius: 12px; background: var(--surface-1); border: 1px solid var(--border); }
+    .hour .caption { font-size: 12px; color: var(--text-3); }
+    .hour svg { display: block; margin: 6px auto; color: var(--text-2); }
+    .hour.sun svg { color: var(--warning); }
+    .hour.rain svg { color: var(--weather); }
+    .hour.rain { border-color: transparent; background: var(--weather-soft); }
+    .hour .body-strong { font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="screen">
+  <div id="sb"></div>
+
+  <div class="scroll under-actions">
+    <header class="head">
+      <div class="row">
+        <a class="back-btn" href="04-route.html" aria-label="Back">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+        <h1 class="title-1">Munich → Garmisch</h1>
+      </div>
+      <p class="caption" id="sub"></p>
+    </header>
+
+    <div class="wrap">
+      <div class="tiles" id="tiles"></div>
+      <div class="alerts" id="alerts"></div>
+
+      <section class="card profile">
+        <div class="h"><p class="label">Altitude</p><span class="caption" id="alt-range"></span></div>
+        <svg id="profile" viewBox="0 0 318 88" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="marks"><span>Munich</span><span>Bad Tölz</span><span>Kesselberg</span><span>Garmisch</span></div>
+      </section>
+
+      <p class="label section-title">Sections</p>
+      <div class="list" id="sections"></div>
+
+      <p class="label section-title">On the way</p>
+      <div class="list" id="points"></div>
+
+      <p class="label section-title">Weather along the route</p>
+      <div class="hourly" id="hourly"></div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <a class="btn btn-secondary" href="12-profile.html">Save to my rides</a>
+    <a class="btn btn-primary" href="10-ride-mode.html">Start ride</a>
+  </div>
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const D = RIDE.detail, R = RIDE.routes[D.route];
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("sub").textContent = `Most fun · via Bad Tölz, Walchensee, Kesselberg`;
+
+  const ti = {
+    Distance: ["accent", '<path d="M4 19 8 5M20 19 16 5M12 8v2M12 13v2M12 18v1"/>'],
+    Riding: ["weather", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
+    Summit: ["positive", '<path d="m3 20 6-14 4 8 2-3 6 9z"/>'],
+  };
+  $("tiles").innerHTML = [[R.km, "Distance"], [R.time, "Riding"], [D.maxAlt, "Summit"]]
+    .map(([v, l]) => `<div class="card tile stat"><span class="ico-tint ${ti[l][0]}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ti[l][1]}</svg></span><div class="display-2">${v}</div><div class="label">${l}</div></div>`).join("");
+
+  const ico = {
+    rain: '<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/>',
+    warn: '<path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/>',
+    road: '<path d="M4 19 8 5M20 19 16 5M12 8v2M12 13v2M12 18v1"/>',
+    valley: '<path d="m3 20 5-12 4 7 3-4 6 9z"/>',
+    pass: '<path d="m3 20 6-14 4 8 2-3 6 9z"/><path d="M6 20a9 9 0 0 1 12 0"/>',
+    fuel: '<path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/>',
+    coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2"/>',
+    eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 0-9h-1.8A7 7 0 1 0 4 14.9"/><path d="M17.5 19H7"/>',
+  };
+  const svg = (d, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+
+  $("alerts").innerHTML = D.alerts.map(a => `<div class="alert ${a.kind === "weather" ? "weather" : "warning"}">${svg(a.kind === "weather" ? ico.rain : ico.warn, 18)}<p class="body">${a.text}</p></div>`).join("");
+
+  /* Profil complet Munich → Garmisch */
+  const P = D.profile, min = Math.min(...P), max = Math.max(...P), W = 318, H = 88, pad = 4;
+  const pts = P.map((v, i) => [i / (P.length - 1) * W, pad + (1 - (v - min) / (max - min)) * (H - 2 * pad)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  $("profile").innerHTML = `<path d="${d} L${W},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  $("alt-range").textContent = `${min} m → ${max} m`;
+
+  const photos = { road: "bavarian-morning", valley: "kochelsee", pass: "kesselberg" };
+  $("sections").innerHTML = D.sections.map(s => `
+    <div class="list-row">
+      <img class="thumb" src="../assets/routes/${photos[s.icon]}.png" alt="">
+      <div class="t"><p class="body-strong">${s.kind}</p><p class="caption">${s.name}</p></div>
+      <span class="end">${s.time} · ${s.km}</span>
+    </div>`).join("");
+
+  const pc = { fuel: "warning", coffee: "positive", eye: "weather" };
+  $("points").innerHTML = D.points.map(p => `
+    <div class="list-row">
+      <span class="ico-tint ${pc[p.icon]}" style="width:36px;height:36px;border-radius:10px">${svg(ico[p.icon], 18)}</span>
+      <div class="t"><p class="body-strong">${p.name}</p><p class="caption">${p.sub}</p></div>
+    </div>`).join("");
+
+  $("hourly").innerHTML = D.hourly.map(([t, temp, w]) => `
+    <div class="hour ${w}"><div class="caption">${t}</div>${svg(ico[w], 22)}<div class="body-strong">${temp}</div></div>`).join("");
+</script>
+</body>
+</html>
