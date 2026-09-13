@@ -123,7 +123,7 @@
   window.addEventListener("resize", fit);
 
   const start = seq.findIndex(e => e.id === location.hash.slice(1));
-  show(start >= 0 ? start : 1);   // Home par défaut
+  show(start >= 0 ? start : 0);   // première maquette de la sélection par défaut
   fit();
   new MutationObserver(fit).observe($("stage"), { attributes: true, attributeFilter: ["class"] });
 </script>

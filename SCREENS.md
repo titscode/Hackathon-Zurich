@@ -52,7 +52,9 @@ Trois états : défaut = navigation ; `#feedback` = la card feedback est affich�
 
 ## 10 features (index.html et PDF)
 
-Source unique : `screens/features.js` (`RIDE_FEATURES`, `RIDE_SEQUENCE`). Chaque feature ouvre son premier écran cible dans la galerie ; les flèches ← / → parcourent tous les écrans et états.
+Source unique : `screens/features.js` (`RIDE_FEATURES`, `RIDE_SEQUENCE`). Chaque feature ouvre son premier écran cible dans la galerie ; les flèches ← / → parcourent la sélection.
+
+Sélection de consultation (galerie et PDF, 13 sept. 2026) : 03 Destination, 04 Route, 06 Companion (conversation et trip ready), 07 Alpine Loop (swap), 08 Explore, 09 Segment, 11 Ride complete, 12 Profile. Les autres écrans (01, 02, 05, 07 défaut, 08 heat, 10 et ses états) restent dans `screens/` et dans `out/`.
 
 1. Two ways to ride: Go somewhere or Plan a trip → 02
 2. Fast ↔ Fun slider that reshapes your route live → 04

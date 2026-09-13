@@ -257,29 +257,10 @@ const RIDE = {
 };
 
 /* Chrome iOS partagé — DESIGN.md §4. Injecté par chaque écran. */
-/* Status bar iOS 17 (iPhone 15 Pro) : 59 px de haut, contenu centré sur l'axe de la Dynamic Island (jamais dessinée,
-   c'est du matériel), heure 17 px / 600, glyphes cellulaire 19×12, Wi-Fi 17×12, batterie 27×13 (contour 1 px à 35 %,
-   charge pleine, téton). */
+/* Status bar : bande vide de 59 px (safe area iPhone 15 Pro). Sans heure ni icônes, à la demande de Tim
+   (13 sept. 2026) : la maquette ne montre que l'app. La hauteur est conservée pour ne pas décaler les écrans. */
 function statusBar() {
-  return `<div class="statusbar">
-    <span class="time">09:41</span>
-    <span class="icons">
-      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" aria-hidden="true">
-        <rect x="0" y="8" width="4" height="4" rx="1.2"/><rect x="5" y="5.5" width="4" height="6.5" rx="1.2"/>
-        <rect x="10" y="3" width="4" height="9" rx="1.2"/><rect x="15" y="0" width="4" height="12" rx="1.2"/>
-      </svg>
-      <svg width="17" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
-        <path d="M8 1.6c2 0 3.9.7 5.4 2l1.1-1.3A10.2 10.2 0 0 0 8 0C5.1 0 2.5 1.1.5 2.9L1.7 4A8.6 8.6 0 0 1 8 1.6z"/>
-        <path d="M8 5.6c1 0 1.9.3 2.6.9l1.1-1.3A6.2 6.2 0 0 0 8 4a6.2 6.2 0 0 0-3.7 1.2l1.1 1.3c.7-.6 1.6-.9 2.6-.9z"/>
-        <circle cx="8" cy="10" r="1.7"/>
-      </svg>
-      <svg width="27" height="13" viewBox="0 0 27 13" fill="none" aria-hidden="true">
-        <rect x="0.5" y="0.5" width="23" height="12" rx="3.75" stroke="currentColor" opacity=".35"/>
-        <rect x="2.5" y="2.5" width="19" height="8" rx="2" fill="currentColor"/>
-        <path d="M25 4.7c.9.2 1.5 1 1.5 1.8s-.6 1.6-1.5 1.8z" fill="currentColor" opacity=".4"/>
-      </svg>
-    </span>
-  </div>`;
+  return `<div class="statusbar" aria-hidden="true"></div>`;
 }
 
 /* Couleur d'un tag de segment — DESIGN.md §4 « Tag » */

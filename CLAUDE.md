@@ -89,7 +89,7 @@ Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l
 `.screen` mais `.tft` (1920×720, `10-ride-mode#bike`), le viewport suit sa taille (PNG 3840×1440).
 
 ```bash
-python scripts/export_pdf.py               # re-capture tous les états de features.js, puis docs/RIDE-mockups.pdf
+python scripts/export_pdf.py               # re-capture la sélection de features.js (RIDE_SEQUENCE), puis docs/RIDE-mockups.pdf
 python scripts/shot_gallery.py             # docs/gallery-*.png (index.html en 1440×900 @2x)
 ```
 Contrôle visuel du PDF (poppler absent sous Windows) : `pip install pypdfium2` puis rasteriser les pages avec
