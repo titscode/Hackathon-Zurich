@@ -254,6 +254,25 @@ const RIDE = {
 
   /* Réglages (écran 12) */
   settings: [["Units", "km/h · °C"], ["Language", "English"], ["Companion voice", "Sara · calm"]],
+
+  /* Écrans du TFT moto 10,25" (tft-0N-*.html). Mêmes chiffres que l'app : route Fun 148 km / 2 h 20, Kesselberg 4.9. */
+  tft: {
+    briefing: {
+      bike: [["Fuel", "78 %", 78], ["Range", "312 km"], ["Tyres", "OK"], ["Oil", "OK"]],
+      routeSegments: ["Kochelsee Uferstraße", "Kesselberg", "Achenpass"],   /* dans l'ordre du parcours */
+      marks: [[0.55, "Kochelsee"], [0.62, "Kesselberg"], [0.74, "Achenpass"]],  /* position sur le profil */
+      hourly: [["10:00", "18°", "sun"], ["12:00", "20°", "sun"], ["13:00", "20°", "cloud"], ["15:00", "17°", "rain"], ["17:00", "16°", "cloud"]],
+    },
+    corridor: { total: 148, pos: 0.59, blocks: [["Kochelsee Uferstraße", 0.55, 0.60, "positive"], ["Kesselberg", 0.61, 0.64, "accent"], ["Achenpass", 0.70, 0.78, "weather"]],
+                next: "Kesselberg", nextIn: "2.1 km", nextNote: "9 hairpins" },
+    speedLimit: "80",
+    segment: { name: "Kesselberg", hairpin: 4, hairpins: 9, next: "Tight left", dist: "120 m", done: 1.8, total: 4.2,
+               speed: "48", tip: "Second gear, no rush. The lake is behind you, look at the exit.",
+               warning: "Gravel after rain", warningSub: "Reported 14× this year" },
+    alert: { title: "Light rain near Kesselberg in 20 min", body: "Kochelsee Uferstraße stays dry · +10 min",
+             alt: "Kochelsee Uferstraße", keep: "Keep Kesselberg", switchTo: "Switch to Kochelsee", say: "switch" },
+    recap: { sent: "Sent to your phone", close: "Press to close" },
+  },
 };
 
 /* Chrome iOS partagé — DESIGN.md §4. Injecté par chaque écran. */

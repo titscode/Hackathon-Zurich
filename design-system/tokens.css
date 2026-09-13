@@ -279,6 +279,48 @@ body {
   position: relative; width: 1920px; height: 720px; overflow: hidden;
   background: var(--bg); color: var(--text-1); flex: none;
 }
+/* Écran TFT complet (tft-0N-*.html) : marges 96 / 40, barre haute, zone principale, ligne basse.
+   Aucun tactile : la molette du Multi-Controller déplace un focus (anneau accent), la voix fait le reste. */
+.tft.page { padding: 40px 96px 44px; display: flex; flex-direction: column; }
+.tft-top { display: flex; justify-content: space-between; align-items: center; height: 40px; flex: none;
+           font-size: 28px; font-weight: 500; color: var(--text-3); }
+.tft-top b { font-weight: 600; color: var(--text-2); }
+.tft-main { flex: 1; min-height: 0; display: flex; gap: 40px; align-items: stretch; margin-top: 24px; }
+.tft-bottom { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 40px; margin-top: 24px; }
+.tft-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 24px; padding: 28px 32px; box-sizing: border-box; }
+.tft-card.soft-weather { background: var(--weather-soft); border-color: transparent; }
+.tft-card.soft-warning { background: var(--warning-soft); border-color: transparent; }
+.tft-title { font-size: 44px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+.tft-h2 { font-size: 32px; font-weight: 600; line-height: 1.2; }
+.tft-body { font-size: 30px; font-weight: 400; line-height: 1.35; color: var(--text-2); }
+.tft-cap { font-size: 24px; font-weight: 400; line-height: 1.3; color: var(--text-2); }
+.tft-value.xl { font-size: 96px; }
+.tft-unit { font-size: 32px; font-weight: 500; color: var(--text-2); margin-left: 8px; }
+.tft-tag { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px;
+           font-size: 22px; font-weight: 500; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+.tft-tag.accent   { background: var(--accent-soft);   color: var(--accent-bright); }
+.tft-tag.positive { background: var(--positive-soft); color: var(--positive); }
+.tft-tag.warning  { background: var(--warning-soft);  color: var(--warning); }
+.tft-tag.weather  { background: var(--weather-soft);  color: var(--weather); }
+.ico-tint.tft-ico { width: 64px; height: 64px; border-radius: 16px; }
+.ico-tint.tft-ico svg { width: 32px; height: 32px; }
+.tft-gauge { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.tft-gauge > i { display: block; height: 100%; border-radius: 999px; background: var(--text-1); }
+.tft-gauge > i.accent { background: var(--accent-bright); }  .tft-gauge > i.positive { background: var(--positive); }
+.tft-avatar { width: 56px; height: 56px; flex: none; }
+.tft-stars { color: var(--star); display: inline-flex; gap: 2px; vertical-align: -2px; }
+.tft-btn { height: 96px; padding: 0 40px; border-radius: 20px; background: var(--surface-2); border: 2px solid var(--border);
+           font-size: 32px; font-weight: 500; color: var(--text-1); display: inline-flex; align-items: center; justify-content: center; gap: 16px; box-sizing: border-box; }
+.tft-btn.focus { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 6px var(--accent-soft); }
+.tft-hint { display: flex; align-items: center; gap: 12px; font-size: 24px; color: var(--text-3); white-space: nowrap; }
+.tft-hint svg { flex: none; }
+.tft-scrim { position: absolute; inset: 0; background: rgba(10, 11, 13, 0.62); z-index: 5; }
+/* Limite de vitesse : disque blanc, monochrome (§1 : pas de rouge) */
+.tft-limit { width: 84px; height: 84px; border-radius: 50%; background: var(--text-1); border: 7px solid var(--text-2); box-sizing: border-box;
+             color: var(--bg); font-size: 34px; font-weight: 600; display: grid; place-items: center; }
+/* Vitesse : toujours visible en roulant, accent-bright */
+.tft-speed .tft-value { color: var(--accent-bright); }
+
 .tft .tft-dist { font-size: 120px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
 .tft .tft-street { font-size: 56px; font-weight: 600; line-height: 1.2; }
 .tft .tft-then { font-size: 32px; font-weight: 400; color: var(--text-2); }

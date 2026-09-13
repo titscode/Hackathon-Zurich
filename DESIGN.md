@@ -91,7 +91,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 
 **Carte** : Leaflet 1.9 (vendorisé) avec tuiles MapTiler `dataviz-dark` (raster 256 px @2x, clé dans `MAPTILER_KEY`, attribution masquée dans le mockup), assombries (`brightness(0.65)`) pour que le sol reste sous `surface-2`. Sans clé : tuiles OSM avec labels gommés à la mise en cache et filtre `invert(1) hue-rotate(180deg) saturate(0.2) brightness(0.45) contrast(1.25)`. Un voile `bg` → transparent de 64 px sous la status bar quand la carte y passe. Tracés en polylines avec des coordonnées réelles approximatives (Munich 48.137,11.575 ; Starnberg 47.999,11.339 ; Bad Tölz 47.760,11.558 ; Walchensee 47.593,11.328 ; Garmisch 47.492,11.095). Position actuelle : point blanc 12 px avec halo `accent-soft` 28 px. Aucune carte dessinée en SVG.
 
-**Illustration de l'écran TFT moto** : cadre paysage 10,25", fond `bg`, mêmes typos, flèche de manœuvre en `text-1`, rien d'autre en couleur.
+**Écran TFT moto** (10,25", artboard 1920 × 720, `screens/tft-0N-*.html`) : même palette et mêmes tokens que l'app, typographie ×2,4 (`.tft-label` 24, `.tft-cap` 24, `.tft-body` 30, `.tft-h2` 32, `.tft-title` 44, `.tft-value` 64 / 96, `.tft-dist` 120), marges 96 px latérales et 40 px verticales, aucun texte sous 24 px. Une information principale au centre, la vitesse toujours visible à droite en `accent-bright` quand on roule, limite de vitesse en disque blanc monochrome. Pas de tactile : la molette du Multi-Controller déplace un focus unique (anneau `accent`, `.tft-btn.focus`) et la ligne basse dit ce que fait la pression ou la voix. Photos autorisées uniquement en vignette (avatars). Flèche de manœuvre en `text-1`.
 
 ## 6. Mouvement
 

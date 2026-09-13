@@ -50,6 +50,16 @@ Trois états : défaut = navigation ; `#feedback` = la card feedback est affich�
 
 **index.html** (racine du repo, servi par GitHub Pages) : panneau de démo hors téléphone, fond `bg`, colonne gauche 320 px : logo, titre, 10 features numérotées en cards `surface-1` (label + caption), chacune ouvrant l'écran cible dans l'iframe 390×844 à droite, sans boîtier de téléphone : l'écran seul, coins 46 px, liseré 1 px et ombre douce (`design-system/iphone.css` `.shot`). Navigation clavier ← / → entre écrans et états. L'état `10#bike` montre l'artboard TFT 1920×720 réduit, aux coins 16 px.
 
+## Écrans TFT moto (On the bike)
+
+Cinq écrans 1920 × 720 (`screens/tft-0N-*.html`, artboard `.tft.page`, capturés en 3840 × 1440), complémentaires de l'app, pilotés au Multi-Controller (molette + pression) et à la voix. Règles dans DESIGN.md §5.
+
+**tft-01-briefing.html** : contact mis, app synchronisée. Route du jour (Munich → Garmisch · Most fun, 148 km · 2 h 20 · 858 m) avec profil d'altitude et segments marqués, alerte « Leave before 12:30 », 3 segments communautaires de la route, état de la moto (78 %, 312 km, tyres OK), météo horaire, bouton focus « Start ride ».
+**tft-02-navigation.html** : en roulant. Flèche 220 px, 400 m, rue, corridor de route avec les segments à venir (« Kesselberg in 2.1 km · 9 hairpins · 4.9 »), vitesse 62 km/h, limite 80, météo à venir, autonomie.
+**tft-03-segment.html** : dans le Kesselberg. Épingle 4 sur 9 à 120 m, profil du segment avec position, conseil de Marco_K, avertissement gravier, progression 1.8 / 4.2 km, vitesse.
+**tft-04-alert.html** : décision du companion. Pluie près du Kesselberg dans 20 min, alternative Kochelsee Uferstraße (+10 min), deux boutons « Keep Kesselberg » (focus) / « Switch to Kochelsee », vitesse toujours visible.
+**tft-05-recap.html** : contact coupé. Bilan (148 km, 2 h 34, 3 passes, 8.6), segments notés, ce que le companion a appris, « Sent to your phone ».
+
 ## 10 features (index.html et PDF)
 
 Source unique : `screens/features.js` (`RIDE_FEATURES`, `RIDE_SEQUENCE`). Chaque feature ouvre son premier écran cible dans la galerie ; les flèches ← / → parcourent la sélection.
