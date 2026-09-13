@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>RIDE — Kesselberg</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Photo 9:16 sur le tiers supérieur, status bar et bouton retour posés dessus (SCREENS.md 09). */
+    .hero .statusbar { position: absolute; top: 0; left: 0; right: 0; }
+    .hero { position: relative; height: 300px; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; display: block; filter: saturate(0.85) contrast(1.05); }
+    .hero .scrim { position: absolute; left: 0; right: 0; top: 0; height: 90px; background: linear-gradient(to bottom, rgba(10,11,13,.75), rgba(10,11,13,0)); }
+    .hero .overlay { height: 60%; }
+    .hero .txt { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 16px; }
+    .hero .title-1 { margin: 0; }
+    .hero .by { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .hero .by .avatar { width: 24px; height: 24px; }
+    .hero .by .caption { color: var(--text-2); }
+    .hero .by .caption b { font-weight: 500; color: var(--text-1); }
+    .back-btn { position: absolute; top: 58px; left: 16px; z-index: 6; width: 40px; height: 40px;
+                background: rgba(10,11,13,.55); border: 1px solid rgba(244,245,247,.12); }
+
+    .body-wrap { padding: 16px var(--gutter) 0; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Note + distribution en 5 jauges */
+    .rating { display: flex; gap: 20px; align-items: center; }
+    .rating .big { flex: none; text-align: center; width: 88px; }
+    .rating .big .display { margin: 0; }
+    .rating .big .stars { color: var(--text-1); display: flex; justify-content: center; gap: 2px; margin-top: 4px; }
+    .rating .big .caption { margin-top: 4px; }
+    .dist { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .dist .r { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+    .dist .r span:first-child { width: 12px; text-align: right; flex: none; }
+    .dist .r .gauge-track { flex: 1; }
+    .dist .r span:last-child { width: 32px; flex: none; text-align: right; color: var(--text-3); }
+
+    .desc { margin: 0; color: var(--text-2); }
+
+    /* Profil d'altitude : ligne blanche 1.5 px sur surface-1 */
+    .profile .h { display: flex; justify-content: space-between; align-items: baseline; }
+    .profile .h .label { margin: 0; }
+    .profile .h .caption { color: var(--text-2); }
+    .profile svg { display: block; width: 100%; height: 72px; margin-top: 10px; }
+
+    .best { display: flex; align-items: center; gap: 10px; }
+    .best svg { color: var(--text-3); flex: none; }
+    .best p { margin: 0; }
+    .best .caption { color: var(--text-2); }
+
+    .alert .caption { margin-top: 2px; }
+
+    .comments { display: flex; flex-direction: column; }
+    .comment { display: flex; gap: 12px; padding: 12px 0; }
+    .comment + .comment { border-top: 1px solid var(--border); }
+    .comment .avatar { width: 32px; height: 32px; flex: none; }
+    .comment .t { flex: 1; min-width: 0; }
+    .comment .who { display: flex; align-items: center; gap: 6px; }
+    .comment .who b { font-weight: 500; font-size: 14px; }
+    .comment .who .caption { color: var(--text-3); }
+    .comment .who .stars { color: var(--text-1); display: flex; gap: 1px; margin-left: auto; }
+    .comment p.body { margin: 4px 0 0; color: var(--text-2); font-size: 14px; }
+
+    /* Bloc mis en valeur : surface-2 */
+    .proof { background: var(--surface-2); border-color: var(--border-strong); }
+    .proof .body-strong { margin: 0; }
+    .proof .caption { margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+<div class="screen">
+  <div class="scroll under-actions">
+    <div class="hero">
+      <img src="../assets/routes/kesselberg-tall.png" alt="">
+      <span class="scrim"></span>
+      <span class="overlay"></span>
+      <div id="sb"></div>
+      <a class="back-btn" href="08-explore.html" aria-label="Back">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <div class="txt">
+        <h1 class="title-1" id="name"></h1>
+        <div class="by" id="by"></div>
+      </div>
+    </div>
+
+    <div class="body-wrap">
+      <section class="card rating" id="rating"></section>
+
+      <p class="body desc" id="desc"></p>
+
+      <section class="card profile">
+        <div class="h"><p class="label">Altitude</p><span class="caption" id="alt-range"></span></div>
+        <svg id="profile" viewBox="0 0 318 72" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </section>
+
+      <div class="best">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div><p class="caption">Best time</p><p class="body-strong" id="best"></p></div>
+      </div>
+
+      <div id="warnings" style="display:flex;flex-direction:column;gap:12px"></div>
+
+      <section>
+        <p class="label" style="margin:4px 0 0">Riders say</p>
+        <div class="comments" id="comments"></div>
+      </section>
+
+      <section class="card proof">
+        <p class="body-strong" id="proof"></p>
+        <p class="caption">Every rating comes from someone who actually rode it, with the date and the bike.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <a class="btn btn-secondary" href="12-profile.html">Follow segment</a>
+    <a class="btn btn-primary" href="07-trip.html">Add to next trip</a>
+  </div>
+  <div id="hi"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const S = RIDE.segments[0], K = RIDE.kesselberg;      // Kesselberg, Marco_K
+  $("sb").innerHTML = statusBar();
+  $("hi").innerHTML = homeIndicator();
+  $("name").textContent = S.name;
+  $("by").innerHTML = `<img class="avatar" src="../assets/avatars/${S.avatar}.png" alt="">
+    <span class="caption">by <b>${S.author}</b> · ${S.km} · curv ${S.curv}</span>`;
+
+  const stars = (n, size) => Array.from({ length: n }, () => star(size)).join("");
+  $("rating").innerHTML = `
+    <div class="big"><div class="display">${S.rating}</div><div class="stars">${stars(5, 11)}</div><div class="caption">${S.rides} rides</div></div>
+    <div class="dist">${K.distribution.map((p, i) => `
+      <div class="r"><span>${5 - i}</span><div class="gauge-track"><div class="gauge-fill" style="width:${p}%"></div></div><span>${p} %</span></div>`).join("")}</div>`;
+  $("desc").textContent = K.description;
+
+  /* Profil : ligne 1.5 px text-1, zone sous la ligne à 6 % */
+  const P = K.profile, min = Math.min(...P), max = Math.max(...P);
+  const W = 318, H = 72, pad = 4;
+  const pts = P.map((v, i) => [i / (P.length - 1) * W, pad + (1 - (v - min) / (max - min)) * (H - 2 * pad)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  $("profile").innerHTML = `<path d="${d} L${W},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  $("alt-range").textContent = `${min} m → ${max} m`;
+  $("best").textContent = K.bestTime;
+
+  const warn = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>';
+  $("warnings").innerHTML = K.warnings.map(w => `<div class="alert warning">${warn}<div><p class="body-strong" style="font-size:14px">${w.text}</p><p class="caption">${w.sub}</p></div></div>`).join("");
+
+  $("comments").innerHTML = K.comments.map(c => `
+    <div class="comment">
+      <img class="avatar" src="../assets/avatars/${c.avatar}.png" alt="">
+      <div class="t">
+        <div class="who"><b>${c.author}</b><span class="caption">${c.when}</span><span class="stars">${stars(c.rating, 10)}</span></div>
+        <p class="body">${c.text}</p>
+      </div>
+    </div>`).join("");
+
+  $("proof").textContent = `Rated by ${S.rides} riders. Not an AI guess.`;
+</script>
+</body>
+</html>
