@@ -34,8 +34,8 @@
     /* Scène : téléphone (ou tableau de bord) centré et mis à l'échelle pour tenir dans la hauteur */
     .stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 24px; min-width: 0; }
     .scale { transform-origin: 0 0; }
-    .iphone, .dash { display: none; }
-    .stage.is-phone .iphone { display: block; }
+    .shot, .dash { display: none; }
+    .stage.is-phone .shot { display: block; }
     .stage.is-tft .dash { display: block; }
     .legend { display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 13px; }
     .legend b { font-weight: 500; color: var(--text-1); }
@@ -60,14 +60,8 @@
 
   <main class="stage is-phone" id="stage">
     <div class="scale" id="scale">
-      <div class="iphone">
-        <i class="k action"></i><i class="k vol-up"></i><i class="k vol-down"></i><i class="k power"></i>
-        <i class="ant tl"></i><i class="ant tr"></i><i class="ant bl"></i><i class="ant br"></i>
-        <div class="screen-wrap"><div class="island"></div><iframe id="phone" title="RIDE screen"></iframe></div>
-      </div>
-      <div class="dash">
-        <div class="screen-wrap"><iframe id="tft" title="Bike display"></iframe></div>
-      </div>
+      <div class="shot"><iframe id="phone" title="RIDE screen"></iframe></div>
+      <div class="dash"><iframe id="tft" title="Bike display"></iframe></div>
     </div>
     <p class="legend" id="legend"></p>
     <div class="nav">
@@ -120,11 +114,11 @@
 
   /* Le téléphone (868 px) tient toujours dans la fenêtre. */
   function fit() {
-    const s = Math.min(1, (window.innerHeight - 120) / 912);
+    const s = Math.min(1, (window.innerHeight - 130) / 860);
     $("scale").style.transform = `scale(${s})`;
     const e = seq[Math.max(cur, 0)];
-    $("scale").style.height = (e && e.tft ? 760 : 880) * s + "px";
-    $("scale").style.width = (e && e.tft ? 842 : 426) * s + "px";
+    $("scale").style.height = (e && e.tft ? 302 : 844) * s + "px";
+    $("scale").style.width = (e && e.tft ? 806 : 390) * s + "px";
   }
   window.addEventListener("resize", fit);
 

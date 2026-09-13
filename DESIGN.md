@@ -81,7 +81,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 **Slider Fast ↔ Fun** : piste `border` 4 px, 3 crans marqués par des points 6 px, poignée 28 px blanche avec bordure 2 px `accent`, labels `caption` sous les crans.
 **Bottom sheet** : `surface-2`, coins supérieurs 20, poignée 36×4 px `border-strong` centrée, padding 20.
 **Tab bar** : 84 px avec safe area, `surface-1`, bordure haute `border`, 4 onglets, icône 24 px + label 11 px, actif en `text-1`, inactif en `text-3`. Jamais en accent.
-**Status bar iOS** (iOS 17, iPhone 15 Pro) : 59 px de haut, contenu centré verticalement sur l'axe de la Dynamic Island (dessinée par le cadre de présentation, jamais par l'écran), heure 09:41 en 17 px / 600 à 40 px du bord gauche, à droite cellulaire 4 barres (19 × 12), Wi-Fi (17 × 12), batterie (27 × 13, contour à 38 %, remplissage plein), gap 7 px, le tout en `text-1`.
+**Status bar iOS** (iOS 17, iPhone 15 Pro) : 59 px de haut, contenu centré verticalement sur l'axe de la Dynamic Island (qui n'est jamais dessinée : c'est du matériel), heure 09:41 en 17 px / 600 à 40 px du bord gauche, à droite cellulaire 4 barres (19 × 12), Wi-Fi (17 × 12), batterie (27 × 13, contour à 38 %, remplissage plein), gap 7 px, le tout en `text-1`.
 **Avatar** : 32 ou 40 px, photo générée, bordure 1 px `border`.
 **Icônes** : Lucide uniquement, 20 px dans le texte, 24 px dans les boutons et la tab bar, stroke 1.5. Jamais d'emoji, jamais d'icône multicolore : une icône est `text-1` / `text-2`, ou prend la couleur sémantique de son fond teinté.
 

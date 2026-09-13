@@ -38,5 +38,5 @@ Leaflet vendorisé, `.map-slot` + `rideFitBounds()` (`data.js`), `.keep-size` su
 
 ## Cadres de présentation (hors téléphone)
 
-`iphone.css` : `.iphone` (cadre iPhone 15 Pro : coins 55 px, bezel titane 12 px, Dynamic Island, boutons, ombre douce) et
-`.dash` (cadre tableau de bord du TFT 10,25"). Utilisés par `index.html` et `scripts/export_pdf.py`, jamais dans un écran.
+`iphone.css` : `.shot` (écran seul 390×844, coins 46 px, liseré 1 px, ombre douce) et `.dash` (TFT 1920×720 réduit, coins 16 px).
+Utilisés par `index.html` et `scripts/export_pdf.py`, jamais dans un écran. Aucun boîtier de téléphone.

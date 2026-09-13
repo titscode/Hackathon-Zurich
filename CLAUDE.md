@@ -13,7 +13,7 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
 | `assets/` | Images générées (illustrations, photos, textures) — jamais de stock externe |
 | `design-system/` | `tailwind.js` (vendorisé) + `tokens.md` : palette, typo, composants |
 | `scripts/` | Outils : screenshot (`shot.py`), PDF (`export_pdf.py`), captures galerie (`shot_gallery.py`), génération d'image, tuiles, setup Windows |
-| `index.html` | Galerie de démo à la racine (GitHub Pages) : 10 features (`screens/features.js`), cadre iPhone (`design-system/iphone.css`) |
+| `index.html` | Galerie de démo à la racine (GitHub Pages) : 10 features (`screens/features.js`), cadre écran seul (`design-system/iphone.css`) |
 | `docs/` | `RIDE-mockups.pdf` (une page par écran et par état) et captures de la galerie |
 
 ## Règles de production d'un écran

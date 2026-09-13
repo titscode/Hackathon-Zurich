@@ -1,79 +1,25 @@
 /* Cadres de présentation hors téléphone — utilisés par index.html (galerie) et scripts/export_pdf.py.
-   Jamais dans un écran. Les dégradés et l'ombre s'appliquent au matériel (titane, verre), pas à une surface de l'app.
+   Jamais dans un écran. Pas de boîtier de téléphone : seule la maquette est montrée, aux coins de l'écran
+   (rayon 46 px), avec un liseré 1 px et une ombre douce sur le fond bg.
 
    Markup attendu :
-   <div class="iphone">
-     <i class="k action"></i><i class="k vol-up"></i><i class="k vol-down"></i><i class="k power"></i>
-     <i class="ant tl"></i><i class="ant tr"></i><i class="ant bl"></i><i class="ant br"></i>
-     <div class="screen-wrap"><div class="island"></div><iframe|img></div>
-   </div> */
+   <div class="shot"><iframe|img></div>          écran 390×844
+   <div class="dash"><iframe|img></div>          TFT 1920×720, réduit par --tft-scale */
 
-/* ---------------------------------------------------------------- iPhone 15 Pro */
-/* Proportions réelles ramenées à un écran de 390 px : boîtier 426×880, bande titane 5 px, bezel noir 13 px,
-   écran rayon 46, coins extérieurs 64. */
-.iphone {
-  position: relative; width: 426px; height: 880px; border-radius: 64px; padding: 18px; box-sizing: border-box;
-  background: linear-gradient(155deg, #7A7D83 0%, #55585E 14%, #33363B 38%, #2B2E33 55%, #44474D 78%, #6E7177 100%);   /* titane naturel */
-  box-shadow:
-    0 40px 80px rgba(0, 0, 0, 0.55),
-    0 12px 28px rgba(0, 0, 0, 0.40),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 1px 0 1px rgba(255, 255, 255, 0.10);
-}
-/* bezel noir continu, aussi épais en bas qu'en haut */
-.iphone::before {
-  content: ""; position: absolute; inset: 5px; border-radius: 59px; background: #050506;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035), inset 0 0 14px rgba(0, 0, 0, 0.9);
-}
-.iphone .screen-wrap {
+/* ------------------------------------------------------------ Écran seul */
+.shot {
   position: relative; width: 390px; height: 844px; border-radius: 46px; overflow: hidden; background: #0A0B0D;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 30px 70px rgba(0, 0, 0, 0.55), 0 10px 24px rgba(0, 0, 0, 0.35);
 }
-.iphone .screen-wrap iframe, .iphone .screen-wrap img { display: block; width: 390px; height: 844px; border: 0; }
-/* Dynamic Island 126×37 à 11 px du haut de l'écran, capteur à droite */
-.iphone .island {
-  position: absolute; top: 11px; left: 50%; width: 126px; height: 37px; margin-left: -63px;
-  border-radius: 20px; background: #000; z-index: 3; pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03);
-}
-.iphone .island::after {
-  content: ""; position: absolute; right: 11px; top: 11px; width: 15px; height: 15px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #2A2F3A 0%, #12151B 45%, #06070A 75%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-/* Boutons latéraux : action, volume + / − à gauche ; power à droite (positions réelles) */
-.iphone .k {
-  position: absolute; width: 4px; border-radius: 2px;
-  background: linear-gradient(90deg, #35383D, #5C5F65 50%, #35383D);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-.iphone .k.action { left: -4px; top: 176px; height: 26px; }
-.iphone .k.vol-up { left: -4px; top: 232px; height: 58px; }
-.iphone .k.vol-down { left: -4px; top: 302px; height: 58px; }
-.iphone .k.power { right: -4px; top: 262px; height: 90px; }
-/* traits d'antenne dans la bande titane */
-.iphone .ant { position: absolute; width: 5px; height: 1px; background: rgba(255, 255, 255, 0.14); }
-.iphone .ant.tl { left: 0; top: 96px; }
-.iphone .ant.tr { right: 0; top: 96px; }
-.iphone .ant.bl { left: 0; bottom: 96px; }
-.iphone .ant.br { right: 0; bottom: 96px; }
+.shot iframe, .shot img { display: block; width: 390px; height: 844px; border: 0; }
 
-/* ------------------------------------------------- Tableau de bord : TFT 10,25" */
-/* Artboard 1920×720 réduit par --tft-scale (0.42 → 806×302), bezel noir mat 18 px, coins 24 px, deux fixations. */
+/* ------------------------------------------------------------ TFT 10,25" */
+/* Artboard 1920×720 réduit par --tft-scale (0.42 → 806×302), coins 16 px, même liseré et même ombre. */
 .dash {
   --tft-scale: 0.42;
-  position: relative; padding: 18px; border-radius: 24px; box-sizing: content-box;
+  position: relative; overflow: hidden; border-radius: 16px; background: #0A0B0D;
   width: calc(1920px * var(--tft-scale)); height: calc(720px * var(--tft-scale));
-  background: linear-gradient(180deg, #1A1B1E, #0E0F11);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 0 0 4px #000;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 30px 70px rgba(0, 0, 0, 0.55), 0 10px 24px rgba(0, 0, 0, 0.35);
 }
-.dash .screen-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; background: #0A0B0D; }
-.dash .screen-wrap iframe { display: block; width: 1920px; height: 720px; border: 0; transform: scale(var(--tft-scale)); transform-origin: 0 0; }
-.dash .screen-wrap img { display: block; width: 100%; height: 100%; }
-/* fixations : deux vis-bossages sous le cadre */
-.dash::before, .dash::after {
-  content: ""; position: absolute; bottom: -22px; width: 38px; height: 22px; border-radius: 0 0 8px 8px;
-  background: linear-gradient(180deg, #17181B, #0B0C0E); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-.dash::before { left: 22%; }
-.dash::after { right: 22%; }
+.dash iframe { display: block; width: 1920px; height: 720px; border: 0; transform: scale(var(--tft-scale)); transform-origin: 0 0; }
+.dash img { display: block; width: 100%; height: 100%; }

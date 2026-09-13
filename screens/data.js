@@ -257,8 +257,9 @@ const RIDE = {
 };
 
 /* Chrome iOS partagé — DESIGN.md §4. Injecté par chaque écran. */
-/* Status bar iOS 17 (iPhone 15 Pro) : 59 px de haut, contenu centré sur l'axe de la Dynamic Island (dessinée par le
-   cadre, pas par l'écran), heure 17 px / 600, glyphes cellulaire 19×12, Wi-Fi 17×12, batterie 27×13. */
+/* Status bar iOS 17 (iPhone 15 Pro) : 59 px de haut, contenu centré sur l'axe de la Dynamic Island (jamais dessinée,
+   c'est du matériel), heure 17 px / 600, glyphes cellulaire 19×12, Wi-Fi 17×12, batterie 27×13 (contour 1 px à 35 %,
+   charge pleine, téton). */
 function statusBar() {
   return `<div class="statusbar">
     <span class="time">09:41</span>
@@ -273,9 +274,9 @@ function statusBar() {
         <circle cx="8" cy="10" r="1.7"/>
       </svg>
       <svg width="27" height="13" viewBox="0 0 27 13" fill="none" aria-hidden="true">
-        <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".38"/>
-        <rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/>
-        <path d="M25 4.4v4.2a2.2 2.2 0 0 0 0-4.2z" fill="currentColor" opacity=".38"/>
+        <rect x="0.5" y="0.5" width="23" height="12" rx="3.75" stroke="currentColor" opacity=".35"/>
+        <rect x="2.5" y="2.5" width="19" height="8" rx="2" fill="currentColor"/>
+        <path d="M25 4.7c.9.2 1.5 1 1.5 1.8s-.6 1.6-1.5 1.8z" fill="currentColor" opacity=".4"/>
       </svg>
     </span>
   </div>`;

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exporte les mockups RIDE en PDF A4 paysage : page de garde, puis 4 maquettes par page (RIDE_SEQUENCE de
-screens/features.js), chacune dans le cadre iPhone de design-system/iphone.css (cadre tableau de bord pour le TFT,
-qui occupe deux emplacements), avec sous chaque maquette le numero de feature, le titre de l'ecran et l'etat.
+screens/features.js), ecran seul aux coins arrondis (design-system/iphone.css .shot ; le TFT occupe deux
+emplacements), avec sous chaque maquette le numero de feature, le titre de l'ecran et l'etat.
 
     python scripts/export_pdf.py               # regenere les PNG (shot.py) puis docs/RIDE-mockups.pdf
     python scripts/export_pdf.py --no-shots    # utilise les PNG deja dans out/
@@ -25,9 +25,9 @@ from shot import WIDTH, HEIGHT, SCALE, chromium_path, shoot  # noqa: E402
 # A4 paysage 297 x 210 mm, 4 emplacements de 63 mm en ligne (marges 12 mm, gouttieres 6 mm).
 PX = 96 / 25.4                                   # px CSS par mm
 SLOT_MM, GAP_MM = 63, 6
-PHONE_W, PHONE_H = 426, 880                      # cadre iPhone (iphone.css)
-DASH_W, DASH_H = 842, 360                        # cadre tableau de bord + fixations
-PHONE_SCALE = round(SLOT_MM * PX / PHONE_W, 4)   # ~0.56 -> 63 x 130 mm
+PHONE_W, PHONE_H = 390, 844                      # ecran seul (iphone.css .shot)
+DASH_W, DASH_H = 806, 302                        # TFT reduit (iphone.css .dash, --tft-scale 0.42)
+PHONE_SCALE = round(SLOT_MM * PX / PHONE_W, 4)   # ~0.61 -> 63 x 136 mm
 DASH_SCALE = round((2 * SLOT_MM + GAP_MM) * PX / DASH_W, 4)
 SLOTS = 4
 
@@ -41,10 +41,11 @@ html, body {{ margin: 0; background: #0A0B0D; color: #F4F5F7; font-family: Inter
 .foot {{ bottom: 9mm; }}
 .head b {{ font-weight: 500; color: #9AA0A8; letter-spacing: 0; }}
 .row {{ position: absolute; left: 12mm; right: 12mm; top: 18mm; bottom: 16mm; display: flex; gap: {GAP_MM}mm; align-items: center; justify-content: flex-start; }}
+.row .slot {{ align-self: flex-start; margin-top: 8mm; }}   /* maquettes alignees en haut, quelle que soit la legende */
 .slot {{ width: {SLOT_MM}mm; flex: none; display: flex; flex-direction: column; align-items: center; }}
 .slot.wide {{ width: {2 * SLOT_MM + GAP_MM}mm; }}
 .fit {{ transform-origin: 0 0; }}
-.cap {{ margin-top: 5mm; text-align: center; width: 100%; }}
+.cap {{ margin-top: 5mm; text-align: center; width: 100%; min-height: 14mm; }}
 .cap .feat {{ font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #5F6670; }}
 .cap .title {{ font-size: 14px; font-weight: 600; margin-top: 4px; line-height: 1.2; }}
 .cap .state {{ font-size: 11px; color: #9AA0A8; margin-top: 3px; }}
@@ -61,11 +62,8 @@ html, body {{ margin: 0; background: #0A0B0D; color: #F4F5F7; font-family: Inter
 .cover .list li span:first-child {{ color: #5F6670; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; width: 22px; flex: none; padding-top: 2px; }}
 """
 
-PHONE_MARKUP = ('<div class="iphone">'
-                '<i class="k action"></i><i class="k vol-up"></i><i class="k vol-down"></i><i class="k power"></i>'
-                '<i class="ant tl"></i><i class="ant tr"></i><i class="ant bl"></i><i class="ant br"></i>'
-                '<div class="screen-wrap"><div class="island"></div><img src="{png}" alt=""></div></div>')
-DASH_MARKUP = '<div class="dash"><div class="screen-wrap"><img src="{png}" alt=""></div></div>'
+PHONE_MARKUP = '<div class="shot"><img src="{png}" alt=""></div>'
+DASH_MARKUP = '<div class="dash"><img src="{png}" alt=""></div>'
 
 
 def slot_html(e):
