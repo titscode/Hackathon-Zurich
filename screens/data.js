@@ -173,8 +173,82 @@ const RIDE = {
     ],
   },
 
-  /* Récap de sortie (écran 11) */
-  recap: { km: "148 km", time: "2 h 34", passes: "3", curv: "8.6", alt: "858 m", motorway: "0 km" },
+  /* Destination (écran 03) : récents depuis Munich. Garmisch renvoie vers 04 (Balanced par défaut). */
+  destination: {
+    placeholder: "Where to?",
+    recents: [
+      { name: "Garmisch-Partenkirchen", sub: "Balanced · 1 h 30 · 104 km", href: "04-route.html" },
+      { name: "Salzburg", sub: "1 h 50 · 145 km", href: "04-route.html" },
+      { name: "Innsbruck", sub: "2 h 05 · 165 km", href: "04-route.html" },
+    ],
+  },
+
+  /* Détail de route (écran 05) : route Fun, Munich → Garmisch via Kesselberg. 45 + 55 + 40 min = 2 h 20 ; 52 + 58 + 38 = 148 km. */
+  detail: {
+    route: 2,
+    /* profil d'altitude en m, du départ (Munich 520 m) au Kesselberg (858 m) puis Garmisch (708 m) */
+    profile: [520, 535, 560, 590, 640, 660, 700, 745, 800, 858, 830, 760, 690, 700, 715, 708],
+    maxAlt: "858 m",
+    sections: [
+      { kind: "Main road", name: "Munich → Bad Tölz · B13", time: "45 min", km: "52 km", icon: "road" },
+      { kind: "Valley road", name: "Bad Tölz → Walchensee · B307", time: "55 min", km: "58 km", icon: "valley" },
+      { kind: "Mountain pass", name: "Kesselberg → Garmisch", time: "40 min", km: "38 km", icon: "pass" },
+    ],
+    points: [
+      { name: "Aral Kochel", sub: "km 88 · last fuel before the pass", icon: "fuel" },
+      { name: "Café am See", sub: "Kochel · coffee with a lake view", icon: "coffee" },
+      { name: "Walchensee viewpoint", sub: "km 96 · 10 min stop", icon: "eye" },
+    ],
+    alerts: [
+      { kind: "weather", text: "Light rain likely near Kesselberg after 15:00. Leave before 12:30." },
+      { kind: "gravel", text: "Loose gravel reported on the Sylvenstein descent, 2 days ago." },
+    ],
+    hourly: [
+      ["10:00", "18°", "sun"], ["11:00", "19°", "sun"], ["12:00", "20°", "sun"], ["13:00", "20°", "cloud"],
+      ["14:00", "19°", "cloud"], ["15:00", "17°", "rain"], ["16:00", "16°", "rain"], ["17:00", "16°", "cloud"],
+    ],
+  },
+
+  /* Fiche segment (écran 09) : Kesselberg par Marco_K. Chiffres de `segments[0]`. */
+  kesselberg: {
+    description: "Nine tight hairpins between Kochelsee and Walchensee, 300 m of climb in 4 km. Ride it early: the asphalt is grippy, the guardrail close and the lake behind you. Second gear, no rush.",
+    distribution: [82, 13, 3, 1, 1],            /* % de 5★ à 1★ */
+    bestTime: "May to October, weekdays before 10:00",
+    profile: [600, 618, 655, 715, 775, 828, 858, 852, 822, 805],   /* Kochelsee 600 m → col 858 m → Walchensee 805 m */
+    warnings: [
+      { text: "Gravel in the lower hairpins after heavy rain", sub: "Reported 14 times this year" },
+      { text: "Weekend traffic and speed checks", sub: "From 11:00 · closed to motorcycles on some Sundays" },
+    ],
+    comments: [
+      { author: "AlpineAnna", avatar: "alpine-anna", when: "3 days ago", rating: 5,
+        text: "Rode it at 7:30, empty road, mist on the lake. Marco's line through hairpin 4 is spot on." },
+      { author: "Flo_R18", avatar: "flo-r18", when: "1 week ago", rating: 5,
+        text: "Grippy asphalt since the resurfacing. Watch the tar snakes near the top." },
+      { author: "LisaGS", avatar: "lisa-gs", when: "2 weeks ago", rating: 4,
+        text: "Great climb, but the Sunday closure caught me out. Check the dates first." },
+    ],
+  },
+
+  /* Ride mode (écran 10) : sur le Kesselberg, route Fun. Mêmes chiffres sur le TFT (#bike). */
+  rideMode: {
+    dist: "400 m", instr: "Turn right onto Kesselbergstraße", then: "Then keep left for 2.1 km",
+    speed: "62", speedUnit: "km/h", weather: "14 °C", weatherIn: "In 20 min", range: "312 km",
+    eta: "12:15", remaining: "38 km",
+    feedback: { q: "How was Kesselberg?", hint: "Say \"loved it\" or \"skip\"" },
+  },
+
+  /* Récap de sortie (écran 11) : route Fun roulée, 2 h 34 réelles pour 2 h 20 prévues. */
+  recap: {
+    km: "148 km", time: "2 h 34", passes: "3", curv: "8.6", alt: "858 m", motorway: "0 km",
+    from: "Munich", to: "Garmisch", when: "12 sept. · 09:41 → 12:15",
+    rated: [["Kesselberg", "Loved it"], ["Kochelsee Uferstraße", "Loved it"], ["Achenpass", "Good"]],
+    learned: "you loved Kesselberg, avoided the A95",
+    /* tracé blanc posé sur la photo de la card (coordonnées 0–100 du cadre) */
+    trace: "M10,60 C22,56 26,48 36,44 S46,42 50,34 S44,26 56,20 S72,22 78,16 S86,12 92,10",
+  },
+
+  /* Réglages (écran 12) */
+  settings: [["Units", "km/h · °C"], ["Language", "English"], ["Companion voice", "Sara · calm"]],
 };
 
 /* Chrome iOS partagé — DESIGN.md §4. Injecté par chaque écran. */

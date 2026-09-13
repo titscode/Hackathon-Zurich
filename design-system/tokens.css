@@ -73,6 +73,7 @@ body {
 
 /* ---------------------------------------------------------------- §2 Typo */
 .display     { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.display-xl  { font-size: 56px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }   /* ride mode seulement (§2) */
 .display-2   { font-size: 26px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.1; }  /* display réduit (SCREENS 07) */
 .title-1     { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
 .title-2     { font-size: 20px; font-weight: 600; line-height: 1.25; }
@@ -206,5 +207,52 @@ body {
 /* Étiquettes de ville sur la carte (07) : leaflet.css impose sinon fond blanc + ombre (§3) */
 .city-lbl { background: none; border: 0; box-shadow: none; padding: 0; color: var(--text-2); font: 500 11px Inter, sans-serif; }
 .city-lbl::before { display: none; }
+
+/* ---------------------------------------------- Lignes de liste (03, 05, 09, 12) */
+.list-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.list-row + .list-row { border-top: 1px solid var(--border); }
+.list-row .ico { width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
+                 display: grid; place-items: center; color: var(--text-2); flex: none; }
+.list-row .t { flex: 1; min-width: 0; }
+.list-row .t p { margin: 0; }
+.list-row .t .caption { margin-top: 2px; }
+.list-row .end { flex: none; color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.list-row .end svg { color: var(--text-3); }
+
+/* ------------------------------------------------ Grilles de chiffres (11, 12) */
+.stat .display-2 { margin: 0; }
+.stat .label { margin-top: 4px; }
+
+/* ------------------------------------------------------- Alertes (05, 09) */
+.alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px;
+         background: var(--surface-1); border: 1px solid var(--border); }
+.alert svg { flex: none; margin-top: 1px; }
+.alert.warning svg { color: var(--warning); }
+.alert.weather svg { color: var(--weather); }
+.alert p { margin: 0; }
+
+/* ------------------------------ Barre d'actions fixe en bas (05, 07, 09) */
+.actions-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding: 12px var(--gutter) 30px; background: var(--bg); border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.scroll.under-actions { padding-bottom: 110px; }
+
+/* ------------------------------------------------ Bouton retour (03, 05, 09) */
+.back-btn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--text-1); }
+
+/* --------------------------------------- Écran TFT moto 10,25" (10-ride-mode#bike) */
+/* DESIGN.md §5 : cadre paysage, fond bg, mêmes typos, flèche en text-1, rien d'autre en couleur.
+   Artboard 1920×720 (ratio du TFT), typo ×2.4 par rapport au téléphone. */
+.tft {
+  position: relative; width: 1920px; height: 720px; overflow: hidden;
+  background: var(--bg); color: var(--text-1); flex: none;
+}
+.tft .tft-dist { font-size: 120px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.tft .tft-street { font-size: 56px; font-weight: 600; line-height: 1.2; }
+.tft .tft-then { font-size: 32px; font-weight: 400; color: var(--text-2); }
+.tft .tft-value { font-size: 64px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.tft .tft-label { font-size: 24px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
 
 a { text-decoration: none; color: inherit; }

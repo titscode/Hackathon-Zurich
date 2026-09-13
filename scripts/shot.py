@@ -60,6 +60,19 @@ def assert_styled(page, name: str) -> None:
         )
 
 
+def artboard_size(page):
+    """[largeur, hauteur] CSS du premier artboard visible (.screen ou .tft), None si aucun."""
+    return page.evaluate(
+        """() => {
+            for (const el of document.querySelectorAll('.screen, .tft')) {
+                const r = el.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) return [Math.round(r.width), Math.round(r.height)];
+            }
+            return null;
+        }"""
+    )
+
+
 def shoot(page, name: str, full_page: bool) -> Path:
     # "08-explore#heat" capture l'etat #heat de l'ecran dans out/08-explore-heat.png
     name, _, state = name.partition("#")
@@ -74,7 +87,15 @@ def shoot(page, name: str, full_page: bool) -> Path:
     # Tailwind s'injecte apres le parse: laisser un tick de plus.
     page.wait_for_timeout(400)
     assert_styled(page, name)
+    # Artboard d'une autre taille que le telephone (ex. 10-ride-mode#bike : TFT 1920x720) :
+    # le viewport suit l'artboard visible, puis revient a 390x844 pour l'ecran suivant.
+    size = artboard_size(page)
+    if size and size != [WIDTH, HEIGHT]:
+        page.set_viewport_size({"width": size[0], "height": size[1]})
+        page.wait_for_timeout(200)
     page.screenshot(path=str(dst), full_page=full_page)
+    if size and size != [WIDTH, HEIGHT]:
+        page.set_viewport_size({"width": WIDTH, "height": HEIGHT})
     page.remove_listener("requestfailed", on_failed)
     print(f"{src.relative_to(ROOT)}{'#' + state if state else ''} -> {dst.relative_to(ROOT)}")
     if missing:

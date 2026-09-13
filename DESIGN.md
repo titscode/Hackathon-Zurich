@@ -44,6 +44,7 @@ Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsch
 Une seule famille : **Inter** (Google Fonts, poids 400, 500, 600). Jamais de condensé, jamais de capitales sur les titres.
 
 - `display`: 34 px / 600 / letter-spacing -0.02em (chiffres clés : durée, distance)
+- `display-xl`: 56 px / 600 / -0.02em (distance de manœuvre en ride mode uniquement, lisible avec des gants)
 - `title-1`: 26 px / 600 / -0.01em (titre d'écran)
 - `display-2`: 26 px / 600 / -0.015em (chiffres des cards jour de l'écran trip)
 - `title-2`: 20 px / 600 (titre de card, nom de col)
@@ -91,7 +92,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 
 ## 6. Mouvement
 
-Transitions d'écran : fade 200 ms. Micro-interactions : 150 à 250 ms, easing `cubic-bezier(0.2, 0, 0, 1)`. Compteurs animés sur les chiffres du slider (300 ms). Orbe vocal : cercle 120 px, blanc à 90 %, pulsation d'échelle 1 → 1.06 quand le compagnon parle, bordure `accent` quand l'utilisateur parle. Pas de glow orange, pas de particules.
+Transitions d'écran : fade 200 ms. Micro-interactions : 150 à 250 ms, easing `cubic-bezier(0.2, 0, 0, 1)`. Compteurs animés sur les chiffres du slider (300 ms). Orbe vocal : cercle 120 px, blanc à 90 %, avec du volume pour se lire comme un vrai objet lumineux et non comme un disque plat : dégradé radial subtil (blanc en haut à gauche vers gris clair au bord ; ce n'est pas une surface, §3 ne s'applique pas), anneau fin 1 px blanc à 35 %, halo blanc doux de 40 px à 10 %. Pulsation d'échelle 1 → 1.06 quand le compagnon parle, bordure `accent` quand l'utilisateur parle. Jamais de glow coloré, jamais de particules.
 
 ## 7. Interdits (à vérifier avant chaque export)
 
