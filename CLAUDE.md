@@ -12,7 +12,9 @@ Source de vérité produit : `DESIGN.md`. Source de vérité visuelle : les imag
 | `out/` | PNG exportés par Playwright (`out/home.png`) |
 | `assets/` | Images générées (illustrations, photos, textures) — jamais de stock externe |
 | `design-system/` | `tailwind.js` (vendorisé) + `tokens.md` : palette, typo, composants |
-| `scripts/` | Outils : screenshot, génération d'image, setup Windows |
+| `scripts/` | Outils : screenshot (`shot.py`), PDF (`export_pdf.py`), captures galerie (`shot_gallery.py`), génération d'image, tuiles, setup Windows |
+| `index.html` | Galerie de démo à la racine (GitHub Pages) : 10 features (`screens/features.js`), cadre iPhone (`design-system/iphone.css`) |
+| `docs/` | `RIDE-mockups.pdf` (une page par écran et par état) et captures de la galerie |
 
 ## Règles de production d'un écran
 
@@ -83,7 +85,13 @@ python scripts/shot.py 04-route --full-page
 python scripts/shot.py --all
 ```
 Un écran peut exposer des états via `location.hash` (`#heat`, `#fun`…) : un PNG par état.
-Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina).
+Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l'artboard visible n'est pas
+`.screen` mais `.tft` (1920×720, `10-ride-mode#bike`), le viewport suit sa taille (PNG 3840×1440).
+
+```bash
+python scripts/export_pdf.py               # re-capture tous les états de features.js, puis docs/RIDE-mockups.pdf
+python scripts/shot_gallery.py             # docs/gallery-*.png (index.html en 1440×900 @2x)
+```
 Prérequis : `pip install playwright && python -m playwright install chromium`.
 
 Le script **échoue volontairement** si Tailwind n'est pas appliqué, plutôt que de produire
