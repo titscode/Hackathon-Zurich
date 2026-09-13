@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RIDE — TFT · Before you ride</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Avant de partir (SCREENS.md tft-01) : route du jour, segments de la route, moto, météo, Start ride au focus. */
+    .col-l { width: 600px; flex: none; display: flex; flex-direction: column; gap: 16px; }
+    .col-c { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+    .col-r { width: 420px; flex: none; display: flex; flex-direction: column; gap: 20px; }
+    .tft-label { display: block; }
+
+    .route { padding: 24px 32px; }
+    .route .tft-title { font-size: 40px; }
+    .route .tft-cap { margin-top: 6px; white-space: nowrap; }
+    .route .vals { display: flex; gap: 36px; margin-top: 14px; }
+    .route .vals .tft-value { font-size: 48px; white-space: nowrap; }
+    .route .vals .tft-label { margin-top: 4px; }
+    .route svg { display: block; width: 100%; height: 64px; margin-top: 12px; }
+    .route .marks { display: flex; justify-content: space-between; font-size: 20px; color: var(--text-3); margin-top: 6px; }
+
+    .alert { display: flex; align-items: center; gap: 16px; padding: 14px 24px; }
+    .alert svg { flex: none; color: var(--weather); }
+    .alert .tft-body { color: var(--text-1); font-size: 24px; }
+
+    .seg { display: flex; align-items: center; gap: 20px; padding: 18px 24px; flex: 1; }
+    .seg .t { flex: 1; min-width: 0; }
+    .seg .t .name { font-size: 30px; font-weight: 600; }
+    .seg .t .meta { font-size: 22px; color: var(--text-2); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .seg .tags { display: flex; gap: 8px; flex: none; }
+
+    .bike .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 26px; }
+    .bike .row + .row { border-top: 1px solid var(--border); }
+    .bike .row .v { font-weight: 500; display: flex; align-items: center; gap: 14px; }
+    .bike .row .v .tft-gauge { width: 120px; }
+    .bike .row .ok { color: var(--positive); }
+    .bike .row .ok svg { vertical-align: -3px; margin-right: 4px; }
+
+    .wx { display: flex; gap: 10px; }
+    .wx .h { flex: 1; text-align: center; padding: 12px 0; border-radius: 16px; background: var(--surface-1); border: 1px solid var(--border); }
+    .wx .h .t { font-size: 20px; color: var(--text-3); }
+    .wx .h svg { display: block; margin: 8px auto; color: var(--text-2); }
+    .wx .h.sun svg { color: var(--warning); }
+    .wx .h.rain svg { color: var(--weather); }
+    .wx .h.rain { background: var(--weather-soft); border-color: transparent; }
+    .wx .h .d { font-size: 24px; font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="tft page">
+  <div class="tft-top"><span><b>RIDE</b> · Ready to ride, Tim</span><span id="sync"></span></div>
+
+  <div class="tft-main">
+    <div class="col-l">
+      <section class="tft-card route">
+        <div class="tft-title">Munich → Garmisch</div>
+        <div class="tft-cap" id="via"></div>
+        <div class="vals" id="vals"></div>
+        <svg id="profile" viewBox="0 0 536 96" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="marks" id="marks"></div>
+      </section>
+      <section class="tft-card soft-weather alert">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/></svg>
+        <div class="tft-body" id="alert"></div>
+      </section>
+    </div>
+
+    <div class="col-c">
+      <span class="tft-label">Community segments on your route</span>
+      <div id="segs" style="display:flex;flex-direction:column;gap:12px;flex:1"></div>
+    </div>
+
+    <div class="col-r">
+      <section class="tft-card bike">
+        <span class="tft-label" id="bike-name"></span>
+        <div id="bike"></div>
+      </section>
+      <div>
+        <span class="tft-label" style="margin-bottom:12px" id="wx-label"></span>
+        <div class="wx" id="wx"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tft-bottom">
+    <span class="tft-btn focus">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4.5 20.3 12 17l7.5 3.3z"/></svg>
+      Start ride
+    </span>
+    <span class="tft-hint">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3"/></svg>
+      Press the wheel to start · or say “let's go”
+    </span>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const D = RIDE.detail, R = RIDE.routes[D.route], T = RIDE.tft.briefing, W = RIDE.weather;
+  $("sync").textContent = `Synced with your phone · ${W.temp} ${W.cond}`;
+  $("via").textContent = `Most fun · via Bad Tölz and Kesselberg`;
+  $("vals").innerHTML = [[R.km, "Distance"], [R.time, "Riding"], [D.maxAlt, "Summit"]]
+    .map(([v, l]) => `<div><div class="tft-value">${v}</div><div class="tft-label">${l}</div></div>`).join("");
+
+  /* Profil d'altitude Munich → Garmisch avec les 3 segments marqués */
+  const P = D.profile, min = Math.min(...P), max = Math.max(...P), Wd = 536, H = 96, pad = 6;
+  const pts = P.map((v, i) => [i / (P.length - 1) * Wd, pad + (1 - (v - min) / (max - min)) * (H - 2 * pad)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const yAt = x => { const i = Math.min(P.length - 2, Math.floor(x * (P.length - 1))), f = x * (P.length - 1) - i; return pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f; };
+  const cols = { Kochelsee: "--positive", Kesselberg: "--accent-bright", Achenpass: "--weather" };
+  $("profile").innerHTML = `<path d="${d} L${Wd},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>` +
+    T.marks.map(([x, n]) => `<circle cx="${(x * Wd).toFixed(1)}" cy="${yAt(x).toFixed(1)}" r="7" fill="var(${cols[n]})" stroke="var(--bg)" stroke-width="3" vector-effect="non-scaling-stroke"/>`).join("");
+  $("marks").innerHTML = `<span>Munich</span><span>Bad Tölz</span><span>Kesselberg</span><span>Garmisch</span>`;
+  $("alert").innerHTML = `<b style="font-weight:600">Leave before 12:30.</b> Light rain near Kesselberg after 15:00.`;
+
+  const stars = n => `<span class="tft-stars">${Array.from({ length: n }, () => star(20)).join("")}</span>`;
+  $("segs").innerHTML = T.routeSegments.map(n => { const s = segByName(n); return `
+    <div class="tft-card seg">
+      <img class="avatar tft-avatar" src="../assets/avatars/${s.avatar}.png" alt="">
+      <div class="t"><div class="name">${s.name}</div><div class="meta">${stars(1)} ${s.rating} · ${s.author} · ${s.km} · curv ${s.curv}</div></div>
+      <div class="tags">${s.tags.slice(0, 1).map(t => `<span class="tft-tag ${tagColor(t)}">${t}</span>`).join("")}</div>
+    </div>`; }).join("");
+
+  const ok = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  $("bike-name").textContent = RIDE.user.bikeFull;
+  $("bike").innerHTML = T.bike.map(([k, v, pct]) => `<div class="row"><span>${k}</span><span class="v">${pct != null ? `<span class="tft-gauge"><i class="positive" style="width:${pct}%"></i></span>` : ""}${v === "OK" ? `<span class="ok">${ok}OK</span>` : v}</span></div>`).join("");
+
+  const ico = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 0-9h-1.8A7 7 0 1 0 4 14.9"/><path d="M17.5 19H7"/>',
+    rain: '<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/>',
+  };
+  $("wx-label").textContent = "Weather ahead";
+  $("wx").innerHTML = T.hourly.map(([t, temp, w]) => `<div class="h ${w}"><div class="t">${t}</div><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${ico[w]}</svg><div class="d">${temp}</div></div>`).join("");
+</script>
+</body>
+</html>

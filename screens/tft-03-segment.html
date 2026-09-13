@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RIDE — TFT · Segment mode</title>
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <style>
+    /* Mode segment (SCREENS.md tft-03) : épingle à venir, profil du segment, conseil du rider, vitesse et alertes. */
+    .col-l { width: 400px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .col-l svg { color: var(--text-1); }
+    .col-l .tft-title { margin-top: 20px; }
+    .col-l .tft-body { margin-top: 8px; }
+    .col-l .tft-body b { font-weight: 600; color: var(--text-1); }
+
+    .col-c { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+    .head { display: flex; align-items: center; gap: 16px; }
+    .head .tft-title { flex: none; }
+    .head .rate { font-size: 28px; color: var(--text-2); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .head .tags { display: flex; gap: 8px; margin-left: auto; }
+    .prof { position: relative; }
+    .prof svg { display: block; width: 100%; height: 150px; }
+    .prof .tft-label { position: absolute; left: 0; top: 0; }
+    .prof .alt { position: absolute; right: 0; top: 0; font-size: 22px; color: var(--text-2); }
+    .tip { display: flex; align-items: center; gap: 20px; padding: 20px 28px; }
+    .tip .q { font-size: 30px; line-height: 1.35; }
+    .tip .q .who { font-size: 22px; color: var(--text-3); margin-top: 4px; }
+
+    .col-r { width: 420px; flex: none; display: flex; flex-direction: column; justify-content: center; gap: 32px; border-left: 2px solid var(--border); padding-left: 56px; }
+    .col-r .stat .tft-label { margin-top: 8px; }
+    .warn { display: flex; gap: 16px; align-items: flex-start; padding: 20px 24px; }
+    .warn svg { flex: none; color: var(--warning); margin-top: 4px; }
+    .warn .h { font-size: 28px; font-weight: 600; }
+    .warn .s { font-size: 22px; color: var(--text-2); margin-top: 4px; }
+    .prog .row { display: flex; justify-content: space-between; font-size: 24px; color: var(--text-2); margin-bottom: 10px; }
+    .prog .row b { color: var(--text-1); font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="tft page">
+  <div class="tft-top"><span><b>RIDE</b> · Segment mode</span><span id="top-r"></span></div>
+
+  <div class="tft-main">
+    <div class="col-l">
+      <!-- épingle à gauche : flèche en U -->
+      <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V9a5 5 0 0 0-10 0v4"/><path d="m3 10 3 3 3-3"/></svg>
+      <div class="tft-title" id="hp"></div>
+      <div class="tft-body" id="next"></div>
+    </div>
+
+    <div class="col-c">
+      <div class="head">
+        <div class="tft-title" id="name"></div>
+        <div class="rate" id="rate"></div>
+        <div class="tags" id="tags"></div>
+      </div>
+      <div class="prof">
+        <span class="tft-label">Segment profile · you are here</span>
+        <span class="alt" id="alt"></span>
+        <svg id="profile" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
+      <div class="tft-card tip" id="tip"></div>
+    </div>
+
+    <div class="col-r">
+      <div class="stat tft-speed"><div class="tft-value xl" id="speed"></div><div class="tft-label">Speed</div></div>
+      <div class="tft-card soft-warning warn">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div><div class="h" id="warn"></div><div class="s" id="warn-s"></div></div>
+      </div>
+      <div class="prog">
+        <div class="row"><span>Progress</span><span><b id="done"></b> <span id="total"></span></span></div>
+        <div class="tft-gauge"><i class="accent" id="prog"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const T = RIDE.tft.segment, S = RIDE.segments[0], K = RIDE.kesselberg;
+  $("top-r").textContent = `${S.name} · ${T.done} of ${T.total} km`;
+  $("hp").textContent = `Hairpin ${T.hairpin} of ${T.hairpins}`;
+  $("next").innerHTML = `<b>${T.next}</b> · in ${T.dist}`;
+  $("name").textContent = S.name;
+  $("rate").innerHTML = `<span class="tft-stars">${star(28)}</span>${S.rating} · ${S.rides} rides`;
+  $("tags").innerHTML = S.tags.map(t => `<span class="tft-tag ${tagColor(t)}">${t}</span>`).join("");
+
+  /* Profil du segment avec la position (43 % du segment) */
+  const P = K.profile, min = Math.min(...P), max = Math.max(...P), W = 1000, H = 150, pad = 40, padB = 8;
+  const pts = P.map((v, i) => [i / (P.length - 1) * W, pad + (1 - (v - min) / (max - min)) * (H - pad - padB)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const x = T.done / T.total;
+  const i0 = Math.min(P.length - 2, Math.floor(x * (P.length - 1))), f = x * (P.length - 1) - i0;
+  const y = pts[i0][1] + (pts[i0 + 1][1] - pts[i0][1]) * f;
+  $("profile").innerHTML = `<path d="${d} L${W},${H} L0,${H} Z" fill="rgba(244,245,247,0.06)"/>
+    <path d="${d}" fill="none" stroke="var(--text-1)" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${(x * W).toFixed(1)}" cy="${y.toFixed(1)}" r="18" fill="var(--accent-soft)"/>
+    <circle cx="${(x * W).toFixed(1)}" cy="${y.toFixed(1)}" r="8" fill="var(--text-1)" stroke="var(--bg)" stroke-width="3" vector-effect="non-scaling-stroke"/>`;
+  $("alt").textContent = `${min} m → ${max} m`;
+
+  $("tip").innerHTML = `<img class="avatar tft-avatar" src="../assets/avatars/${S.avatar}.png" alt="">
+    <div class="q">“${T.tip}”<div class="who">${S.author} · segment author</div></div>`;
+
+  $("speed").innerHTML = `${T.speed}<span class="tft-unit">km/h</span>`;
+  $("warn").textContent = T.warning;
+  $("warn-s").textContent = T.warningSub;
+  $("done").textContent = `${T.done} km`;
+  $("total").textContent = `of ${T.total} km`;
+  $("prog").style.width = `${x * 100}%`;
+</script>
+</body>
+</html>
