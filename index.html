@@ -61,7 +61,8 @@
   <main class="stage is-phone" id="stage">
     <div class="scale" id="scale">
       <div class="iphone">
-        <div class="k action"></div><div class="k vol-up"></div><div class="k vol-down"></div><div class="k power"></div>
+        <i class="k action"></i><i class="k vol-up"></i><i class="k vol-down"></i><i class="k power"></i>
+        <i class="ant tl"></i><i class="ant tr"></i><i class="ant bl"></i><i class="ant br"></i>
         <div class="screen-wrap"><div class="island"></div><iframe id="phone" title="RIDE screen"></iframe></div>
       </div>
       <div class="dash">
@@ -95,8 +96,12 @@
     stage.classList.toggle("is-tft", !!e.tft);
     stage.classList.toggle("is-phone", !e.tft);
     const frame = e.tft ? $("tft") : $("phone");
-    if (frame.getAttribute("src") !== "screens/" + e.src) frame.setAttribute("src", "screens/" + e.src);
-    else frame.contentWindow.location.reload();
+    /* Même écran rejoué (ex. Replay) : un cache-buster dans la query force le rechargement, sans toucher au
+       contentWindow (interdit en file:// : origine « null »). */
+    const [file, hash] = e.src.split("#");
+    const same = (frame.dataset.src || "") === e.src;
+    frame.dataset.src = e.src;
+    frame.setAttribute("src", "screens/" + file + (same ? "?r=" + Date.now() : "") + (hash ? "#" + hash : ""));
     document.querySelectorAll(".feature").forEach(el => el.classList.toggle("on", +el.dataset.n === e.feature));
     $("legend").innerHTML = e.tft
       ? `<b>${e.title}</b><span class="sep">·</span>As shown on the bike's 10.25" TFT`
@@ -115,11 +120,11 @@
 
   /* Le téléphone (868 px) tient toujours dans la fenêtre. */
   function fit() {
-    const s = Math.min(1, (window.innerHeight - 120) / 900);
+    const s = Math.min(1, (window.innerHeight - 120) / 912);
     $("scale").style.transform = `scale(${s})`;
     const e = seq[Math.max(cur, 0)];
-    $("scale").style.height = (e && e.tft ? 760 : 868) * s + "px";
-    $("scale").style.width = (e && e.tft ? 842 : 414) * s + "px";
+    $("scale").style.height = (e && e.tft ? 760 : 880) * s + "px";
+    $("scale").style.width = (e && e.tft ? 842 : 426) * s + "px";
   }
   window.addEventListener("resize", fit);
 

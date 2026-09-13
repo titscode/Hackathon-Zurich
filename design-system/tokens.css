@@ -21,11 +21,12 @@
   --accent-bright: #4D8FE6;
   --accent-soft: rgba(28, 105, 212, 0.14);
 
-  /* §1 Sémantique, désaturés */
-  --positive: #3FBF7F;
-  --warning: #D9A441;
-  --danger: #D9534F;
-  --weather: #6FA8DC;
+  /* §1 Sémantique, désaturés, avec leur fond teinté à 14 % (icônes, tags, alertes) */
+  --positive: #3FBF7F;  --positive-soft: rgba(63, 191, 127, 0.14);
+  --warning: #D9A441;   --warning-soft: rgba(217, 164, 65, 0.14);
+  --danger: #D9534F;    --danger-soft: rgba(217, 83, 79, 0.14);
+  --weather: #6FA8DC;   --weather-soft: rgba(111, 168, 220, 0.14);
+  --star: #E4B75A;      /* or des notes */
 
   /* §1 Route sur la carte */
   --route-selected: #F4F5F7;
@@ -87,13 +88,14 @@ body {
 .t2 { color: var(--text-2); } .t3 { color: var(--text-3); }
 
 /* ------------------------------------------------------- Chrome iOS (§4) */
+/* iOS 17, iPhone 15 Pro : 59 px, contenu centré sur l'axe de la Dynamic Island (y = 29,5), heure sous le coin arrondi */
 .statusbar {
-  height: 54px; padding: 0 var(--gutter); display: flex; align-items: flex-end;
-  padding-bottom: 8px; justify-content: space-between;
-  font-size: 12px; font-weight: 600; color: var(--text-1);
+  height: 59px; padding: 1px 36px 0 40px; display: flex; align-items: center; justify-content: space-between;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1);
   position: relative; z-index: 20;
 }
-.statusbar .icons { display: flex; align-items: center; gap: 6px; }
+.statusbar .time { line-height: 1; }
+.statusbar .icons { display: flex; align-items: center; gap: 7px; }
 .home-indicator {
   position: absolute; left: 0; right: 0; bottom: 8px; height: 5px;
   display: flex; justify-content: center; z-index: 30; pointer-events: none;
@@ -113,6 +115,32 @@ body {
   height: auto; width: auto; background: none; border: 0; color: var(--accent-bright);
   font-size: 15px; font-weight: 500; padding: 0; font-family: inherit; cursor: pointer;
 }
+
+/* ---------------------------------------- §4 Icône sur fond teinté, tag, étoiles */
+.ico-tint { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; flex: none; }
+.ico-tint.accent   { background: var(--accent-soft);   color: var(--accent-bright); }
+.ico-tint.positive { background: var(--positive-soft); color: var(--positive); }
+.ico-tint.warning  { background: var(--warning-soft);  color: var(--warning); }
+.ico-tint.weather  { background: var(--weather-soft);  color: var(--weather); }
+.ico-tint.danger   { background: var(--danger-soft);   color: var(--danger); }
+.ico-tint.neutral  { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+.tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap;
+  background: var(--surface-2); color: var(--text-2);
+}
+.tag.accent   { background: var(--accent-soft);   color: var(--accent-bright); }
+.tag.positive { background: var(--positive-soft); color: var(--positive); }
+.tag.warning  { background: var(--warning-soft);  color: var(--warning); }
+.tag.weather  { background: var(--weather-soft);  color: var(--weather); }
+/* tags posés sur une photo : fond sombre à 70 % pour rester lisibles sur un ciel clair */
+.tags .tag { background: rgba(10, 11, 13, 0.70); }
+.stars, .star { color: var(--star); }
+.gauge-fill.accent   { background: var(--accent-bright); }
+.gauge-fill.positive { background: var(--positive); }
+.gauge-fill.weather  { background: var(--weather); }
+.gauge-fill.warning  { background: var(--warning); }
+.gauge-fill.star     { background: var(--star); }
 
 /* -------------------------------------------------------------- §4 Chips */
 .chip {
@@ -227,7 +255,9 @@ body {
 .alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px;
          background: var(--surface-1); border: 1px solid var(--border); }
 .alert svg { flex: none; margin-top: 1px; }
+.alert.warning { background: var(--warning-soft); border-color: transparent; }
 .alert.warning svg { color: var(--warning); }
+.alert.weather { background: var(--weather-soft); border-color: transparent; }
 .alert.weather svg { color: var(--weather); }
 .alert p { margin: 0; }
 

@@ -12,7 +12,8 @@
 | `--border` / `--border-strong` | #262A31 / #343941 | bordure 1 px partout / focus, séparateurs marqués |
 | `--text-1` / `--text-2` / `--text-3` | #F4F5F7 / #9AA0A8 / #5F6670 | titres et valeurs / labels / métadonnées |
 | `--accent` / `--accent-bright` / `--accent-soft` | #1C69D4 / #4D8FE6 / rgba(28,105,212,.14) | CTA unique / texte accent / chips actives |
-| `--positive` `--warning` `--danger` `--weather` | #3FBF7F #D9A441 #D9534F #6FA8DC | sémantique désaturée |
+| `--positive` `--warning` `--danger` `--weather` (+ `*-soft` à 14 %) | #3FBF7F #D9A441 #D9534F #6FA8DC | sémantique désaturée : jauges, icônes teintées, tags, alertes |
+| `--star` | #E4B75A | étoiles et notes |
 | `--route-selected` `--route-alt` `--route-day1..3` | voir DESIGN.md §1 | tracés Leaflet |
 
 ## Typographie (classes)
@@ -27,7 +28,7 @@ Grille 4 px, `--gutter` 20 px, `--r-card` 16, `--r-btn` 12, `--r-sheet` 20, `--r
 ## Composants (`tokens.css`)
 
 `.screen` (390×844) · `.statusbar` / `.home-indicator` / `.tabbar` (`data.js`) · `.btn-primary` `.btn-secondary` `.btn-tertiary` ·
-`.chip` (`.active`, `.picked`) · `.card` `.card-photo` + `.overlay` · `.gauge-track` / `.gauge-fill` · `.avatar` · `.sheet` + `.sheet-handle` ·
+`.chip` (`.active`, `.picked`) · `.tag.{accent,positive,warning,weather}` · `.ico-tint.{…}` · `.stars` · `.card` `.card-photo` + `.overlay` · `.gauge-track` / `.gauge-fill` · `.avatar` · `.sheet` + `.sheet-handle` ·
 `.scroll` (padding-bottom 100 px) · `.seg` (ligne segment) · `.list-row` · `.stat` · `.alert` (`.warning`, `.weather`) ·
 `.actions-bar` + `.scroll.under-actions` · `.back-btn` · `.tft` (artboard 1920×720 du TFT moto, `.tft-dist` `.tft-street` `.tft-then` `.tft-value` `.tft-label`).
 

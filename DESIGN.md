@@ -1,6 +1,6 @@
 # DESIGN.md : RIDE by BMW Motorrad
 
-Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsche, Apple Maps en mode sombre, le cockpit d'une BMW la nuit. Rien ne crie. La qualité vient de la typographie, des espacements, des vraies photos et de la vraie carte. Toute décision qui n'est pas couverte ici se tranche vers « moins ».
+Direction : premium, sobre, fond sombre. Référence mentale : l'app Porsche, Apple Maps en mode sombre, le cockpit d'une BMW la nuit. Rien ne crie, mais l'app n'est pas austère : les couleurs sémantiques portent l'information (jauges, étoiles, météo, tags), les vraies photos donnent envie de rouler. La qualité vient de la typographie, des espacements, des vraies photos et de la vraie carte. Toute décision qui n'est pas couverte ici se tranche vers « moins ».
 
 ## 1. Palette
 
@@ -24,12 +24,13 @@ Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsch
 - `accent-bright`: #4D8FE6 (texte sur fond sombre, liens, valeurs mises en avant)
 - `accent-soft`: rgba(28,105,212,0.14) (fond des chips actives, halo)
 
-**Sémantique** (désaturés)
+**Sémantique** (désaturés), chacune avec son fond teinté `*-soft` à 14 % pour les icônes, tags et alertes
 
-- `positive`: #3FBF7F
-- `warning`: #D9A441
+- `positive`: #3FBF7F (bon, connecté, Loved it, scenic)
+- `warning`: #D9A441 (avertissements, soleil, communauté)
 - `danger`: #D9534F
-- `weather`: #6FA8DC
+- `weather`: #6FA8DC (météo, alpin, températures)
+- `star`: #E4B75A (or des notes et des étoiles, uniquement pour les notes)
 
 **Route sur la carte**
 
@@ -37,7 +38,7 @@ Direction : premium, sobre, quasi monochrome. Référence mentale : l'app Porsch
 - `route-alt`: #4A5058 (2.5 px, opacité 0.6 ; toujours sous le halo du tracé sélectionné)
 - `route-day1` / `day2` / `day3` : #F4F5F7, #4D8FE6, #9AA0A8
 
-**Règle d'usage** : un écran contient au maximum un élément en accent plein (le CTA). Tout le reste est blanc, gris, ou photo.
+**Règle d'usage** : un écran contient au maximum un CTA en `accent` plein. Les couleurs sémantiques et `star` servent à l'information : remplissage des jauges (Curviness `accent-bright`, Scenic `positive`, Weather `weather`, Community `warning`), étoiles des notes, icônes sur fond teinté, tags, alertes. Toujours désaturées, jamais sur une surface entière, jamais sur du texte courant.
 
 ## 2. Typographie
 
@@ -64,7 +65,7 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 - Padding interne des cards : 16 px
 - Rayon cards : 16 px ; boutons : 12 px ; chips : 999 px ; avatars : cercle
 - Ombres : aucune. La hiérarchie vient des surfaces et de la bordure 1 px.
-- Dégradés : interdits sur les surfaces. Autorisés uniquement en overlay sur les photos (voir §5).
+- Dégradés : interdits sur les surfaces. Autorisés uniquement en overlay sur les photos (voir §5), qui peuvent recevoir une légère teinte bleue (`rgba(28,105,212,0.10)` mélangée au noir) pour rester dans la même lumière.
 
 ## 4. Composants
 
@@ -72,15 +73,17 @@ Grille 4 px. Valeurs autorisées : 4, 8, 12, 16, 20, 24, 32, 40.
 **Bouton secondaire** : hauteur 52 px, fond `surface-2`, bordure `border`, texte `text-1`.
 **Bouton tertiaire** : texte `accent-bright`, sans fond.
 **Chips** : hauteur 34 px, padding 0 14 px, fond `surface-2`, bordure `border` ; active : fond `accent-soft`, bordure `accent`, texte `accent-bright` ; choisie (réponse déjà donnée, écran vocal) : bordure `border-strong`, texte `text-1`, sans accent.
+**Tag** (caractère d'un segment) : 22 px, padding 0 8 px, 11 px / 500, fond `*-soft`, texte couleur pleine : Twisties → `accent`, Alpine → `weather`, Iconic → `warning`, Lakeside → `positive`.
+**Icône sur fond teinté** : 28 à 36 px, rayon 8 à 10, fond `*-soft`, icône Lucide dans la couleur pleine. Sert aux listes (sections, points d'intérêt, préférences, réglages) et aux tuiles de chiffres.
 **Card** : `surface-1`, bordure `border`, rayon 16, padding 16.
 **Card photo** : image 3:2 en haut, coins supérieurs 16, overlay bas linéaire rgba(10,11,13,0) → rgba(10,11,13,0.85) sur les 55 % inférieurs, titre `title-2` en blanc posé sur l'overlay, métadonnées `caption` en dessous de l'image dans une zone `surface-1`.
-**Jauge** : piste `border` 4 px rayon 999, remplissage `text-1` (pas accent), valeur en `body-strong` à droite.
+**Jauge** : piste `border` 4 px rayon 999, remplissage dans la couleur sémantique de la mesure (voir §1, `text-1` par défaut), valeur en `body-strong` à droite.
 **Slider Fast ↔ Fun** : piste `border` 4 px, 3 crans marqués par des points 6 px, poignée 28 px blanche avec bordure 2 px `accent`, labels `caption` sous les crans.
 **Bottom sheet** : `surface-2`, coins supérieurs 20, poignée 36×4 px `border-strong` centrée, padding 20.
 **Tab bar** : 84 px avec safe area, `surface-1`, bordure haute `border`, 4 onglets, icône 24 px + label 11 px, actif en `text-1`, inactif en `text-3`. Jamais en accent.
-**Status bar iOS** : 09:41, signal, batterie, en `text-1`, 12 px.
+**Status bar iOS** (iOS 17, iPhone 15 Pro) : 59 px de haut, contenu centré verticalement sur l'axe de la Dynamic Island (dessinée par le cadre de présentation, jamais par l'écran), heure 09:41 en 17 px / 600 à 40 px du bord gauche, à droite cellulaire 4 barres (19 × 12), Wi-Fi (17 × 12), batterie (27 × 13, contour à 38 %, remplissage plein), gap 7 px, le tout en `text-1`.
 **Avatar** : 32 ou 40 px, photo générée, bordure 1 px `border`.
-**Icônes** : Lucide uniquement, 20 px dans le texte, 24 px dans les boutons et la tab bar, stroke 1.5. Jamais d'emoji, jamais d'icône colorée.
+**Icônes** : Lucide uniquement, 20 px dans le texte, 24 px dans les boutons et la tab bar, stroke 1.5. Jamais d'emoji, jamais d'icône multicolore : une icône est `text-1` / `text-2`, ou prend la couleur sémantique de son fond teinté.
 
 ## 5. Images et carte
 

@@ -12,7 +12,12 @@ const RIDE = {
     lastRide: "2 days ago",
     avatar: "../assets/avatars/tim.png",
     stats: { rides: 42, km: "6 830", passes: 11 },
-    badges: ["Bavarian Explorer", "Early Bird", "Twisty Hunter"],
+    level: { name: "Alpine Rider", pct: 72, next: "Pass Collector", left: "3 passes to go" },
+    badges: [
+      { name: "Bavarian Explorer", sub: "42 Bavarian rides", icon: "laurel", color: "positive" },
+      { name: "Early Bird", sub: "11 dawn starts", icon: "sunrise", color: "warning" },
+      { name: "Twisty Hunter", sub: "3 210 twisty km", icon: "corner", color: "accent" },
+    ],
     prefs: [
       "Tight corners",
       "Avoids highways",
@@ -89,9 +94,9 @@ const RIDE = {
   ],
 
   dreamRides: [
-    { name: "Stelvio North Face", sub: "48 hairpins", photo: "stelvio" },
-    { name: "Grimsel Pass", sub: "Switzerland", photo: "grimsel" },
-    { name: "Susten Pass", sub: "Switzerland", photo: "susten" },
+    { name: "Stelvio North Face", sub: "48 hairpins · 2 757 m", photo: "stelvio", country: "Italy" },
+    { name: "Grimsel Pass", sub: "2 164 m · glacier lakes", photo: "grimsel", country: "Switzerland" },
+    { name: "Susten Pass", sub: "2 224 m · wide sweepers", photo: "susten", country: "Switzerland" },
   ],
 
 
@@ -191,7 +196,7 @@ const RIDE = {
     maxAlt: "858 m",
     sections: [
       { kind: "Main road", name: "Munich → Bad Tölz · B13", time: "45 min", km: "52 km", icon: "road" },
-      { kind: "Valley road", name: "Bad Tölz → Walchensee · B307", time: "55 min", km: "58 km", icon: "valley" },
+      { kind: "Valley road", name: "Bad Tölz → Walchensee", time: "55 min", km: "58 km", icon: "valley" },
       { kind: "Mountain pass", name: "Kesselberg → Garmisch", time: "40 min", km: "38 km", icon: "pass" },
     ],
     points: [
@@ -252,27 +257,35 @@ const RIDE = {
 };
 
 /* Chrome iOS partagé — DESIGN.md §4. Injecté par chaque écran. */
+/* Status bar iOS 17 (iPhone 15 Pro) : 59 px de haut, contenu centré sur l'axe de la Dynamic Island (dessinée par le
+   cadre, pas par l'écran), heure 17 px / 600, glyphes cellulaire 19×12, Wi-Fi 17×12, batterie 27×13. */
 function statusBar() {
   return `<div class="statusbar">
-    <span>09:41</span>
+    <span class="time">09:41</span>
     <span class="icons">
-      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true">
-        <rect x="0" y="7.5" width="3" height="3.5" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/>
-        <rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/>
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" aria-hidden="true">
+        <rect x="0" y="8" width="4" height="4" rx="1.2"/><rect x="5" y="5.5" width="4" height="6.5" rx="1.2"/>
+        <rect x="10" y="3" width="4" height="9" rx="1.2"/><rect x="15" y="0" width="4" height="12" rx="1.2"/>
       </svg>
-      <svg width="16" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
+      <svg width="17" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
         <path d="M8 1.6c2 0 3.9.7 5.4 2l1.1-1.3A10.2 10.2 0 0 0 8 0C5.1 0 2.5 1.1.5 2.9L1.7 4A8.6 8.6 0 0 1 8 1.6z"/>
         <path d="M8 5.6c1 0 1.9.3 2.6.9l1.1-1.3A6.2 6.2 0 0 0 8 4a6.2 6.2 0 0 0-3.7 1.2l1.1 1.3c.7-.6 1.6-.9 2.6-.9z"/>
-        <circle cx="8" cy="10" r="1.6"/>
+        <circle cx="8" cy="10" r="1.7"/>
       </svg>
-      <svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true">
-        <rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".45"/>
-        <rect x="2" y="2" width="16.4" height="8" rx="1.6" fill="currentColor"/>
-        <path d="M23 4v4a2.5 2.5 0 0 0 0-4z" fill="currentColor" opacity=".45"/>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".38"/>
+        <rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/>
+        <path d="M25 4.4v4.2a2.2 2.2 0 0 0 0-4.2z" fill="currentColor" opacity=".38"/>
       </svg>
     </span>
   </div>`;
 }
+
+/* Couleur d'un tag de segment — DESIGN.md §4 « Tag » */
+function tagColor(tag) {
+  return { Twisties: "accent", Alpine: "weather", Iconic: "warning", Lakeside: "positive" }[tag] || "neutral";
+}
+function tagHtml(tag) { return `<span class="tag ${tagColor(tag)}">${tag}</span>`; }
 
 function homeIndicator() {
   return `<div class="home-indicator"><i></i></div>`;
