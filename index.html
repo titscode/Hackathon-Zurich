@@ -17,7 +17,8 @@
     .brand .display { font-size: 26px; letter-spacing: 0.02em; }
     .brand .label { margin: 4px 0 0; }
     .brand .caption { margin: 12px 0 0; }
-    .features { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; scrollbar-width: none; flex: 1; min-height: 0; padding-bottom: 8px; }
+    .features { margin-top: 16px; overflow-y: auto; scrollbar-width: none; flex: 1; min-height: 0; padding-bottom: 8px; }
+    #feature-list, #tft-list { display: flex; flex-direction: column; gap: 6px; }
     .features::-webkit-scrollbar { display: none; }
     .feature { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; cursor: pointer;
                background: var(--surface-1); border: 1px solid var(--border); transition: border-color 150ms var(--ease), background 150ms var(--ease); }
@@ -36,7 +37,7 @@
     .scale { transform-origin: 0 0; }
     .shot, .dash { display: none; }
     .stage.is-phone .shot { display: block; }
-    .stage.is-tft .dash { display: block; }
+    .stage.is-tft .dash { display: block; --tft-scale: 0.52; }   /* 998×374 : plus grand que dans le PDF, lisible */
     .legend { display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 13px; }
     .legend b { font-weight: 500; color: var(--text-1); }
     .legend .sep { color: var(--text-3); }
@@ -52,9 +53,13 @@
     <div class="brand">
       <div class="display">RIDE</div>
       <p class="label">by BMW Motorrad</p>
-      <p class="caption">Find your best road. Ten features, twelve screens, one companion that learns how you ride.</p>
+      <p class="caption">Find your best road. Ten features, twelve screens, five bike screens, one companion that learns how you ride.</p>
     </div>
-    <div class="features" id="features"></div>
+    <div class="features" id="features">
+      <div id="feature-list"></div>
+      <p class="label" style="margin:14px 0 6px">On the bike · 10.25" TFT</p>
+      <div id="tft-list"></div>
+    </div>
     <p class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next screen</p>
   </aside>
 
@@ -77,10 +82,15 @@
   const seq = RIDE_SEQUENCE, feats = RIDE_FEATURES;
   let cur = -1;
 
-  $("features").innerHTML = feats.map(f => `
+  $("feature-list").innerHTML = feats.map(f => `
     <div class="feature" data-n="${f.n}" data-target="${f.target}">
       <span class="n">${String(f.n).padStart(2, "0")}</span>
       <div class="t"><p>${f.title}</p><span class="caption">Screens ${f.screens}</span></div>
+    </div>`).join("");
+  $("tft-list").innerHTML = RIDE_TFT.map((e, i) => `
+    <div class="feature tft-item" data-id="${e.id}" data-target="${e.id}">
+      <span class="n">T${i + 1}</span>
+      <div class="t"><p>${e.title}</p><span class="caption">${e.state}</span></div>
     </div>`).join("");
 
   /* Charge l'écran par src complet : un simple changement de hash ne rejoue pas l'état des écrans. */
@@ -96,7 +106,7 @@
     const same = (frame.dataset.src || "") === e.src;
     frame.dataset.src = e.src;
     frame.setAttribute("src", "screens/" + file + (same ? "?r=" + Date.now() : "") + (hash ? "#" + hash : ""));
-    document.querySelectorAll(".feature").forEach(el => el.classList.toggle("on", +el.dataset.n === e.feature));
+    document.querySelectorAll(".feature").forEach(el => el.classList.toggle("on", e.tft ? el.dataset.id === e.id : +el.dataset.n === e.feature));
     $("legend").innerHTML = e.tft
       ? `<b>${e.title}</b><span class="sep">·</span>As shown on the bike's 10.25" TFT`
       : `<b>${e.title}</b>${e.state ? `<span class="sep">·</span>${e.state}` : ""}<span class="sep">·</span>Feature ${String(e.feature).padStart(2, "0")}`;
@@ -114,11 +124,12 @@
 
   /* Le téléphone (868 px) tient toujours dans la fenêtre. */
   function fit() {
-    const s = Math.min(1, (window.innerHeight - 130) / 860);
+    const e = seq[Math.max(cur, 0)], tft = !!(e && e.tft);
+    const w = tft ? 998 : 390, h = tft ? 374 : 844;
+    const s = Math.min(1, (window.innerHeight - 130) / (h + 16), ($("stage").clientWidth - 48) / w);
     $("scale").style.transform = `scale(${s})`;
-    const e = seq[Math.max(cur, 0)];
-    $("scale").style.height = (e && e.tft ? 302 : 844) * s + "px";
-    $("scale").style.width = (e && e.tft ? 806 : 390) * s + "px";
+    $("scale").style.height = h * s + "px";
+    $("scale").style.width = w * s + "px";
   }
   window.addEventListener("resize", fit);
 

@@ -86,7 +86,8 @@ python scripts/shot.py --all
 ```
 Un écran peut exposer des états via `location.hash` (`#heat`, `#fun`…) : un PNG par état.
 Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l'artboard visible n'est pas
-`.screen` mais `.tft` (1920×720, `10-ride-mode#bike`), le viewport suit sa taille (PNG 3840×1440).
+`.screen` mais `.tft` (1920×720 : `10-ride-mode#bike` et les écrans du TFT moto `screens/tft-0N-*.html`), le viewport
+suit sa taille (PNG 3840×1440).
 
 ```bash
 python scripts/export_pdf.py               # re-capture la sélection de features.js (RIDE_SEQUENCE), puis docs/RIDE-mockups.pdf

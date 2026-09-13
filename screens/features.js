@@ -17,6 +17,16 @@ const RIDE_SEQUENCE = [
   { id: "12-profile",           src: "12-profile.html",          title: "Profile",       state: "",                      feature: 5 },
 ];
 
+/* Écrans du TFT moto (On the bike) : artboards 1920×720, montrés seuls (.dash), 2 emplacements dans le PDF */
+const RIDE_TFT = [
+  { id: "tft-01-briefing",   src: "tft-01-briefing.html",   title: "Before you ride", state: "Bike on, synced with the app",  feature: 3,  tft: true },
+  { id: "tft-02-navigation", src: "tft-02-navigation.html", title: "Navigation",      state: "Next turn, segments ahead",     feature: 9,  tft: true },
+  { id: "tft-03-segment",    src: "tft-03-segment.html",    title: "Segment mode",    state: "Inside the Kesselberg",         feature: 8,  tft: true },
+  { id: "tft-04-alert",      src: "tft-04-alert.html",      title: "Companion",       state: "Rain ahead, one decision",      feature: 3,  tft: true },
+  { id: "tft-05-recap",      src: "tft-05-recap.html",      title: "Ride complete",   state: "Rate, then sent to the phone",  feature: 10, tft: true },
+];
+RIDE_SEQUENCE.push(...RIDE_TFT);
+
 /* Écrans hors sélection, gardés pour référence (shot.py les capture toujours) */
 const RIDE_EXTRA = ["01-splash#connected", "02-home", "05-route-detail", "07-trip", "08-explore#heat",
                     "10-ride-mode", "10-ride-mode#bike", "10-ride-mode#feedback"];

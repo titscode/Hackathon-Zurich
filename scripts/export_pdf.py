@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exporte les mockups RIDE en PDF A4 paysage : page de garde, puis 4 maquettes par page (RIDE_SEQUENCE de
-screens/features.js), ecran seul aux coins arrondis (design-system/iphone.css .shot ; le TFT occupe deux
-emplacements), avec sous chaque maquette le numero de feature, le titre de l'ecran et l'etat.
+screens/features.js), ecran seul aux coins arrondis (design-system/iphone.css .shot) ; un ecran TFT moto occupe
+une page entiere sur toute la largeur, avec sous chaque maquette le numero de feature, le titre de l'ecran et l'etat.
 
     python scripts/export_pdf.py               # regenere les PNG (shot.py) puis docs/RIDE-mockups.pdf
     python scripts/export_pdf.py --no-shots    # utilise les PNG deja dans out/
@@ -28,7 +28,8 @@ SLOT_MM, GAP_MM = 63, 6
 PHONE_W, PHONE_H = 390, 844                      # ecran seul (iphone.css .shot)
 DASH_W, DASH_H = 806, 302                        # TFT reduit (iphone.css .dash, --tft-scale 0.42)
 PHONE_SCALE = round(SLOT_MM * PX / PHONE_W, 4)   # ~0.61 -> 63 x 136 mm
-DASH_SCALE = round((2 * SLOT_MM + GAP_MM) * PX / DASH_W, 4)
+ROW_MM = 4 * SLOT_MM + 3 * GAP_MM                # 270 mm : un ecran TFT occupe toute la ligne (texte lisible)
+DASH_SCALE = round(ROW_MM * PX / DASH_W, 4)
 SLOTS = 4
 
 CSS = f"""
@@ -43,7 +44,7 @@ html, body {{ margin: 0; background: #0A0B0D; color: #F4F5F7; font-family: Inter
 .row {{ position: absolute; left: 12mm; right: 12mm; top: 18mm; bottom: 16mm; display: flex; gap: {GAP_MM}mm; align-items: center; justify-content: flex-start; }}
 .row .slot {{ align-self: flex-start; margin-top: 8mm; }}   /* maquettes alignees en haut, quelle que soit la legende */
 .slot {{ width: {SLOT_MM}mm; flex: none; display: flex; flex-direction: column; align-items: center; }}
-.slot.wide {{ width: {2 * SLOT_MM + GAP_MM}mm; }}
+.slot.wide {{ width: {ROW_MM}mm; }}
 .fit {{ transform-origin: 0 0; }}
 .cap {{ margin-top: 5mm; text-align: center; width: 100%; min-height: 14mm; }}
 .cap .feat {{ font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #5F6670; }}
@@ -87,7 +88,7 @@ def paginate(seq):
     """Groupes de 4 emplacements ; le TFT en prend 2 et passe a la page suivante s'il ne reste pas la place."""
     pages, cur, used = [], [], 0
     for e in seq:
-        w = 2 if e.get("tft") else 1
+        w = SLOTS if e.get("tft") else 1
         if used + w > SLOTS:
             pages.append(cur)
             cur, used = [], 0
@@ -101,6 +102,8 @@ def paginate(seq):
 def page_html(entries, i, n):
     feats = sorted({e["feature"] for e in entries})
     rng = f"Feature {feats[0]:02d}" if len(feats) == 1 else f"Features {feats[0]:02d} to {feats[-1]:02d}"
+    if all(e.get("tft") for e in entries):
+        rng = "On the bike · 10.25\" TFT"
     screens = ", ".join(e["src"].split(".")[0] for e in entries)
     return f"""
 <section class="page">

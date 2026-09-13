@@ -38,6 +38,18 @@ Douze écrans d'app mobile en HTML statique (390 × 844), sans build ni serveur.
 | Ride complete | `screens/11-recap.html` | |
 | Profile | `screens/12-profile.html` | |
 
+## Écrans du TFT moto (10,25", 1920 × 720)
+
+| Écran | Fichier |
+|---|---|
+| Avant de partir | `screens/tft-01-briefing.html` |
+| Navigation | `screens/tft-02-navigation.html` |
+| Mode segment | `screens/tft-03-segment.html` |
+| Décision du companion | `screens/tft-04-alert.html` |
+| Arrivée | `screens/tft-05-recap.html` |
+
+Ils s'ouvrent de la même façon ; la galerie les liste sous « On the bike ».
+
 ## Modifier
 
 - Les textes et chiffres sont dans `screens/data.js` (un seul endroit, partagé par tous les écrans).

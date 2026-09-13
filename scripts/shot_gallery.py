@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
-DEFAULT = ["04-route", "07-trip-swap", "09-segment"]
+DEFAULT = ["04-route", "07-trip-swap", "09-segment", "tft-01-briefing"]
 
 
 def main() -> None:
