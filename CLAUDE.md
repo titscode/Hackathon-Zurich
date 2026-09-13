@@ -92,6 +92,8 @@ Rend en 390×844, `device_scale_factor=2` (PNG 780×1688, qualité retina). Si l
 python scripts/export_pdf.py               # re-capture tous les états de features.js, puis docs/RIDE-mockups.pdf
 python scripts/shot_gallery.py             # docs/gallery-*.png (index.html en 1440×900 @2x)
 ```
+Contrôle visuel du PDF (poppler absent sous Windows) : `pip install pypdfium2` puis rasteriser les pages avec
+`pypdfium2.PdfDocument(...)[i].render(scale=1.6).to_pil()` ; ce n'est pas un prérequis du repo.
 Prérequis : `pip install playwright && python -m playwright install chromium`.
 
 Le script **échoue volontairement** si Tailwind n'est pas appliqué, plutôt que de produire
